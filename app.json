@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/menu/index",
+    "pages/recipes/index",
+    "pages/recipe-form/index",
+    "pages/history/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "家里吃什么",
+    "navigationBarBackgroundColor": "#f8f4ec",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f8f4ec"
+  },
+  "tabBar": {
+    "color": "#6c6a64",
+    "selectedColor": "#2f7058",
+    "backgroundColor": "#fffaf2",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/menu/index",
+        "text": "今日点菜"
+      },
+      {
+        "pagePath": "pages/recipes/index",
+        "text": "菜谱库"
+      },
+      {
+        "pagePath": "pages/history/index",
+        "text": "记录"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

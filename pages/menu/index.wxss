@@ -1,0 +1,56 @@
+.summary {
+  border-color: #d7e3dc;
+}
+
+.note-input {
+  width: 100%;
+  min-height: 96rpx;
+  margin: 18rpx 0;
+  padding: 16rpx;
+  border-radius: 10rpx;
+  background: #f8f4ec;
+}
+
+.cart-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 8rpx 0;
+  color: #555149;
+  font-size: 25rpx;
+}
+
+.recipe-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.recipe-card {
+  padding-right: 16rpx;
+}
+
+.counter {
+  display: grid;
+  grid-template-columns: 60rpx 54rpx 60rpx;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.round-btn {
+  width: 60rpx;
+  height: 60rpx;
+  padding: 0;
+  border-radius: 50%;
+  background: #f1eee7;
+  color: #443f38;
+  font-size: 34rpx;
+}
+
+.round-btn.add {
+  background: #2f7058;
+  color: #ffffff;
+}
+
+.qty {
+  text-align: center;
+  font-weight: 700;
+}

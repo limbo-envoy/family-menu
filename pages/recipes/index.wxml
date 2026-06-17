@@ -1,0 +1,29 @@
+<view class="page">
+  <view class="topbar">
+    <view>
+      <view class="title">菜谱库</view>
+      <view class="subtitle">{{recipes.length}} 道菜，常吃的都放这里</view>
+    </view>
+    <button class="primary-btn" bindtap="addRecipe">新增</button>
+  </view>
+
+  <input class="search" placeholder="搜索菜名、分类或食材" value="{{keyword}}" bindinput="onSearch" />
+
+  <view class="card" wx:for="{{filteredRecipes}}" wx:key="id" data-id="{{item.id}}" bindtap="editRecipe">
+    <view class="row">
+      <view class="recipe-main">
+        <view class="name">{{item.name}}</view>
+        <view class="meta">
+          <text class="tag">{{item.category || '未分类'}}</text>
+          <text>{{item.ingredientsPreview}}</text>
+        </view>
+        <view class="note" wx:if="{{item.note}}">{{item.note}}</view>
+      </view>
+      <view class="arrow">›</view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!filteredRecipes.length}}">
+    还没有这道菜，点右上角新增。
+  </view>
+</view>

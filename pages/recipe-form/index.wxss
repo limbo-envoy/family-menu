@@ -1,0 +1,46 @@
+.form-page {
+  padding-bottom: 54rpx;
+}
+
+.field {
+  margin-bottom: 22rpx;
+}
+
+.label {
+  margin-bottom: 10rpx;
+  color: #555149;
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.field-input,
+.field-area {
+  width: 100%;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  background: #ffffff;
+  border: 1rpx solid #eee5d8;
+}
+
+.field-input {
+  height: 82rpx;
+}
+
+.field-area {
+  min-height: 150rpx;
+}
+
+.field-area.large {
+  min-height: 230rpx;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18rpx;
+  margin-top: 34rpx;
+}
+
+.save {
+  width: 100%;
+}

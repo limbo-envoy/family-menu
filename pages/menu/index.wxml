@@ -1,0 +1,47 @@
+<view class="page">
+  <view class="topbar">
+    <view>
+      <view class="title">今天吃什么</view>
+      <view class="subtitle">从菜谱库里点菜，保存成一顿饭的记录</view>
+    </view>
+    <button class="ghost-btn" bindtap="goRecipes">菜谱</button>
+  </view>
+
+  <input class="search" placeholder="搜索菜名、分类或食材" value="{{keyword}}" bindinput="onSearch" />
+
+  <view class="summary card" wx:if="{{cartItems.length}}">
+    <view class="row">
+      <view>
+        <view class="name">已选 {{totalDishes}} 道菜</view>
+        <view class="meta">共 {{totalQty}} 份，可保存为本餐记录</view>
+      </view>
+      <button class="primary-btn" bindtap="saveOrder">保存</button>
+    </view>
+    <textarea class="note-input" placeholder="这顿饭的备注，比如谁来吃、口味要求" value="{{note}}" bindinput="onNoteInput" />
+    <view class="cart-line" wx:for="{{cartItems}}" wx:key="id">
+      <text>{{item.name}}</text>
+      <text>x {{item.qty}}</text>
+    </view>
+  </view>
+
+  <view class="card recipe-card" wx:for="{{filteredRecipes}}" wx:key="id">
+    <view class="row">
+      <view class="recipe-main">
+        <view class="name">{{item.name}}</view>
+        <view class="meta">
+          <text class="tag">{{item.category || '未分类'}}</text>
+          <text>{{item.ingredientsPreview}}</text>
+        </view>
+      </view>
+      <view class="counter">
+        <button class="round-btn" data-id="{{item.id}}" bindtap="minus">-</button>
+        <text class="qty">{{item.qty || 0}}</text>
+        <button class="round-btn add" data-id="{{item.id}}" bindtap="plus">+</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!filteredRecipes.length}}">
+    没找到菜。去菜谱库添加一道吧。
+  </view>
+</view>

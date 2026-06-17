@@ -1,0 +1,15 @@
+.recipe-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.note {
+  margin-top: 14rpx;
+  color: #555149;
+  font-size: 25rpx;
+}
+
+.arrow {
+  color: #aaa298;
+  font-size: 50rpx;
+}

@@ -1,0 +1,16 @@
+.dish-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f1eadf;
+  color: #443f38;
+}
+
+.note {
+  margin-top: 16rpx;
+  padding: 16rpx;
+  border-radius: 10rpx;
+  background: #f8f4ec;
+  color: #555149;
+  font-size: 25rpx;
+}

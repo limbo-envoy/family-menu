@@ -1,0 +1,31 @@
+<view class="page form-page">
+  <view class="field">
+    <view class="label">菜名</view>
+    <input class="field-input" placeholder="比如 番茄炒蛋" value="{{form.name}}" data-field="name" bindinput="onInput" />
+  </view>
+
+  <view class="field">
+    <view class="label">分类</view>
+    <input class="field-input" placeholder="家常菜、凉菜、汤、主食..." value="{{form.category}}" data-field="category" bindinput="onInput" />
+  </view>
+
+  <view class="field">
+    <view class="label">食材</view>
+    <textarea class="field-area" placeholder="一行一个食材，方便以后搜索" value="{{form.ingredients}}" data-field="ingredients" bindinput="onInput" />
+  </view>
+
+  <view class="field">
+    <view class="label">步骤</view>
+    <textarea class="field-area large" placeholder="写简单一点，自己看得懂就行" value="{{form.steps}}" data-field="steps" bindinput="onInput" />
+  </view>
+
+  <view class="field">
+    <view class="label">备注</view>
+    <textarea class="field-area" placeholder="口味、火候、家里谁爱吃..." value="{{form.note}}" data-field="note" bindinput="onInput" />
+  </view>
+
+  <view class="actions">
+    <button class="primary-btn save" bindtap="saveRecipe">保存菜谱</button>
+    <button class="danger-btn" wx:if="{{form.id}}" bindtap="confirmRemove">删除</button>
+  </view>
+</view>
