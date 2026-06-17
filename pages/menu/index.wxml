@@ -34,9 +34,9 @@
         </view>
       </view>
       <view class="counter">
-        <button class="round-btn" data-id="{{item.id}}" bindtap="minus">-</button>
+        <view class="round-btn" data-id="{{item.id}}" bindtap="minus">-</view>
         <text class="qty">{{item.qty || 0}}</text>
-        <button class="round-btn add" data-id="{{item.id}}" bindtap="plus">+</button>
+        <view class="round-btn add" data-id="{{item.id}}" bindtap="plus">+</view>
       </view>
     </view>
   </view>

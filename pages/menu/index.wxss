@@ -33,16 +33,20 @@
   grid-template-columns: 60rpx 54rpx 60rpx;
   align-items: center;
   gap: 8rpx;
+  flex: 0 0 196rpx;
 }
 
 .round-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 60rpx;
   height: 60rpx;
-  padding: 0;
   border-radius: 50%;
   background: #f1eee7;
   color: #443f38;
   font-size: 34rpx;
+  line-height: 60rpx;
 }
 
 .round-btn.add {
