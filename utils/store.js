@@ -1353,11 +1353,26 @@ async function cloudGetAll(col) {
 // 读全部：云端分页拉取，否则本地存储
 async function getList(key) {
   if (cloudReady()) {
-    const col = _db.collection(collName(key))
-    const all = await cloudGetAll(col)
-    return all
+    try {
+      const col = _db.collection(collName(key))
+      const all = await cloudGetAll(col)
+      return all
+    } catch (e) {
+      _lastCloudError = e
+      console.error(`[cloud] 读取集合「${collName(key)}」失败：`, e && (e.errMsg || e.message || e))
+      wx.showToast({
+        title: "云端读取失败，检查集合权限",
+        icon: "none"
+      })
+      throw e
+    }
   }
   return wx.getStorageSync(key) || []
+}
+
+let _lastCloudError = null
+function getLastCloudError() {
+  return _lastCloudError
 }
 
 // 覆盖写全部：云端做增量 diff（新增/更新/删除），避免全量删写，否则本地存储
@@ -1715,5 +1730,6 @@ module.exports = {
   consumeInventory,
   getOrders,
   saveOrder,
-  removeOrder
+  removeOrder,
+  getLastCloudError
 }

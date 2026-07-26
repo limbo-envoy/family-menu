@@ -14,9 +14,13 @@ Page({
   },
 
   async refresh() {
-    const recipes = await store.getRecipes()
-    const categories = ["全部", ...Array.from(new Set(recipes.map(r => r.category || "未分类")))]
-    this.setData({ recipes, categories }, () => this.applyFilter())
+    try {
+      const recipes = await store.getRecipes()
+      const categories = ["全部", ...Array.from(new Set(recipes.map(r => r.category || "未分类")))]
+      this.setData({ recipes, categories }, () => this.applyFilter())
+    } catch (e) {
+      console.error("[recipes] 加载失败：", e)
+    }
   },
 
   applyFilter() {

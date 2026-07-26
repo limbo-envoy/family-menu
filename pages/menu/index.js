@@ -31,13 +31,17 @@ Page({
   },
 
   async refresh() {
-    const recipes = await store.getRecipes()
-    const inventory = await store.getInventory()
-    const recommended = await store.recommendRecipes(6)
-    this.setData({ recipes, inventory, recommended }, async () => {
-      await this.applyRecipeFilter()
-      this.buildCustomView()
-    })
+    try {
+      const recipes = await store.getRecipes()
+      const inventory = await store.getInventory()
+      const recommended = await store.recommendRecipes(6)
+      this.setData({ recipes, inventory, recommended }, async () => {
+        await this.applyRecipeFilter()
+        this.buildCustomView()
+      })
+    } catch (e) {
+      console.error("[menu] 加载失败：", e)
+    }
   },
 
   /* ---------- 模式切换 ---------- */
