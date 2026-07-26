@@ -32,7 +32,7 @@ exports.main = async (event) => {
     const { buffer, contentType } = await downloadBuffer(fileUrl)
 
     // 3. 调用微信 OCR 通用印刷体文字识别
-    const res = await cloud.openapi.ocr.printedTextOCR({
+    const res = await cloud.openapi.ocr.printedText({
       img: { contentType, value: buffer }
     })
 
