@@ -14,25 +14,21 @@ Page({
   },
 
   async refresh() {
-    try {
-      const recipes = await store.getRecipes()
-      const categories = ["全部", ...Array.from(new Set(recipes.map(r => r.category || "未分类")))]
-      this.setData({ recipes, categories }, () => this.applyFilter())
-      if (!recipes.length) {
-        this.showDiagnosis("菜谱库为空")
-      }
-    } catch (e) {
-      console.error("[recipes] 加载失败：", e)
-      this.showDiagnosis("菜谱加载失败")
+    const recipes = await store.getRecipes()
+    const categories = ["全部", ...Array.from(new Set(recipes.map(r => r.category || "未分类")))]
+    this.setData({ recipes, categories }, () => this.applyFilter())
+    if (!recipes.length) {
+      this.showDiagnosis("菜谱库为空")
     }
   },
 
   async showDiagnosis(title) {
     try {
+      const err = store.getLastCloudError()
       const report = await store.diagnoseCloud()
       wx.showModal({
         title,
-        content: report,
+        content: report + (err ? "\n\n最近一次错误：" + (err.errMsg || err.message || String(err)) : ""),
         showCancel: false,
         confirmText: "知道了"
       })

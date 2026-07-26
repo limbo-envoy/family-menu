@@ -1453,25 +1453,37 @@ async function setList(key, list) {
 
 async function ensureSeedRecipes() {
   return runOnce("ensureSeedRecipes", async () => {
-    const existing = await getList(KEYS.recipes)
-    if (!existing.length) {
-      // 首次：若本地有旧数据则迁移到云端，否则写入种子
-      const local = wx.getStorageSync(KEYS.recipes) || []
-      await setList(KEYS.recipes, local.length ? local : seedRecipes)
-      return
-    }
-    // 之后每次启动：把种子里「本地还没有」的菜按名称补全，老菜不受影响
-    const existingNames = new Set(existing.map(r => normalizeName(r.name)))
-    const toAdd = seedRecipes.filter(r => !existingNames.has(normalizeName(r.name)))
-    if (toAdd.length) {
-      await setList(KEYS.recipes, [...toAdd, ...existing])
+    try {
+      const existing = await getList(KEYS.recipes)
+      if (!existing.length) {
+        // 首次：若本地有旧数据则迁移到云端，否则写入种子
+        const local = wx.getStorageSync(KEYS.recipes) || []
+        await setList(KEYS.recipes, local.length ? local : seedRecipes)
+        return
+      }
+      // 之后每次启动：把种子里「本地还没有」的菜按名称补全，老菜不受影响
+      const existingNames = new Set(existing.map(r => normalizeName(r.name)))
+      const toAdd = seedRecipes.filter(r => !existingNames.has(normalizeName(r.name)))
+      if (toAdd.length) {
+        await setList(KEYS.recipes, [...toAdd, ...existing])
+      }
+    } catch (e) {
+      // 云端写入/更新失败时不阻断页面：已有数据可继续读，无数据时降级到本地种子
+      console.error("[ensureSeedRecipes] 云端种子同步失败：", e)
+      _lastCloudError = e
     }
   })
 }
 
 async function getRecipes() {
   await ensureSeedRecipes()
-  return await getList(KEYS.recipes)
+  try {
+    return await getList(KEYS.recipes)
+  } catch (e) {
+    console.error("[getRecipes] 云端读取失败，降级到本地种子：", e)
+    _lastCloudError = e
+    return seedRecipes
+  }
 }
 
 // 把菜谱里的 ingredients 统一成 [{name, qty, unit}] 结构
