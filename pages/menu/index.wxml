@@ -28,6 +28,11 @@
     </view>
 
     <input class="search" placeholder="搜索菜名、分类" value="{{keyword}}" bindinput="onSearch" />
+
+    <scroll-view class="cat-tabs" scroll-x="true">
+      <view class="cat-tab {{activeCategory === item ? 'cat-on' : ''}}" wx:for="{{categories}}" wx:key="*this" data-cat="{{item}}" bindtap="setCategory">{{item}}</view>
+    </scroll-view>
+
     <view class="hint">点击菜名展开食材清单</view>
     <view class="card recipe-card" wx:for="{{filteredRecipes}}" wx:key="id">
       <view class="row">

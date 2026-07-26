@@ -10,6 +10,8 @@ Page({
     mode: MODE_RECIPE,
     keyword: "",
     expandedId: "",
+    categories: ["全部"],
+    activeCategory: "全部",
     recipes: [],
     filteredRecipes: [],
     recommended: [],
@@ -35,7 +37,8 @@ Page({
       const recipes = await store.getRecipes()
       const inventory = await store.getInventory()
       const recommended = await store.recommendRecipes(6)
-      this.setData({ recipes, inventory, recommended }, async () => {
+      const categories = ["全部", ...Array.from(new Set(recipes.map(r => r.category || "未分类")))]
+      this.setData({ recipes, inventory, recommended, categories }, async () => {
         await this.applyRecipeFilter()
         this.buildCustomView()
       })
@@ -52,10 +55,12 @@ Page({
   /* ---------- 选菜谱模式 ---------- */
   async applyRecipeFilter() {
     const keyword = this.data.keyword.trim().toLowerCase()
+    const active = this.data.activeCategory
     const filteredRecipes = []
     for (const item of this.data.recipes) {
       const text = `${item.name} ${item.category}`.toLowerCase()
       if (keyword && !text.includes(keyword)) continue
+      if (active !== "全部" && (item.category || "未分类") !== active) continue
       const check = await store.checkRecipe(item)
       filteredRecipes.push({
         ...item,
@@ -75,6 +80,10 @@ Page({
 
   onSearch(event) {
     this.setData({ keyword: event.detail.value }, () => this.applyRecipeFilter())
+  },
+
+  setCategory(event) {
+    this.setData({ activeCategory: event.currentTarget.dataset.cat }, () => this.applyRecipeFilter())
   },
 
   // 点击菜名展开/收起食材清单

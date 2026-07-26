@@ -23,6 +23,29 @@
   color: #ffffff;
 }
 
+/* 分类 tab（与菜谱库一致） */
+.cat-tabs {
+  white-space: nowrap;
+  margin-bottom: 18rpx;
+}
+
+.cat-tab {
+  display: inline-block;
+  padding: 14rpx 30rpx;
+  margin-right: 14rpx;
+  background: #ffffff;
+  border: 1rpx solid #ece4d7;
+  border-radius: 999rpx;
+  color: #6c6a64;
+  font-size: 26rpx;
+}
+
+.cat-on {
+  background: #2f7058;
+  border-color: #2f7058;
+  color: #ffffff;
+}
+
 /* 选菜谱卡片 */
 .recipe-card {
   padding-right: 16rpx;
