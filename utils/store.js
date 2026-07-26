@@ -1811,10 +1811,17 @@ function expiryStatus(expiryDate) {
 }
 
 // 检查一组需求 [{name, qty, unit}] 的库存满足情况
-async function checkAvailability(requirements) {
+// 可传入 inventoryMap(name -> total) 避免重复读取云端
+async function checkAvailability(requirements, inventoryMap) {
+  const hasMap = inventoryMap instanceof Map
   return Promise.all((requirements || []).map(async req => {
-    const available = await getInventoryTotalByName(req.name)
     const required = Number(req.qty) || 0
+    let available = 0
+    if (hasMap) {
+      available = inventoryMap.get(normalizeName(req.name)) || 0
+    } else {
+      available = await getInventoryTotalByName(req.name)
+    }
     return {
       name: req.name,
       unit: req.unit || "",
@@ -1825,10 +1832,11 @@ async function checkAvailability(requirements) {
   }))
 }
 
-// 检查单个菜谱是否食材充足，返回 {ok, missing:[{name,required,available}]}
-async function checkRecipe(recipe) {
+// 检查单个菜谱是否食材充足，返回 {ok, missing:[{name,required,available}], lines}
+// 可传入 inventoryMap 避免重复读取云端
+async function checkRecipe(recipe, inventoryMap) {
   const requirements = normalizeIngredients(recipe)
-  const lines = await checkAvailability(requirements)
+  const lines = await checkAvailability(requirements, inventoryMap)
   const missing = lines.filter(l => !l.sufficient)
   return {
     ok: missing.length === 0,

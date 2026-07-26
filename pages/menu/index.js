@@ -62,12 +62,19 @@ Page({
   async applyRecipeFilter() {
     const keyword = this.data.keyword.trim().toLowerCase()
     const active = this.data.activeCategory
+    // 只读一次库存，避免对每个菜谱/每个食材都重复请求云端
+    const inventory = await store.getInventory()
+    const inventoryMap = new Map()
+    inventory.forEach(item => {
+      const name = store.normalizeName(item.name)
+      inventoryMap.set(name, (inventoryMap.get(name) || 0) + (Number(item.quantity) || 0))
+    })
     const filteredRecipes = []
     for (const item of this.data.recipes) {
       const text = `${item.name} ${item.category}`.toLowerCase()
       if (keyword && !text.includes(keyword)) continue
       if (active !== "全部" && (item.category || "未分类") !== active) continue
-      const check = await store.checkRecipe(item)
+      const check = await store.checkRecipe(item, inventoryMap)
       filteredRecipes.push({
         ...item,
         missingCount: check.missing.length,
