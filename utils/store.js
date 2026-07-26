@@ -1336,9 +1336,9 @@ function cloudReady() {
   return !!(wx.cloud && _db)
 }
 
-// 分页读取云数据库全部文档（.get 默认 limit 20）
+// 分页读取云数据库全部文档（小程序端每次最多 20 条）
 async function cloudGetAll(col) {
-  const batch = 100
+  const batch = 20
   let all = []
   let skip = 0
   while (true) {
