@@ -13,8 +13,8 @@ Page({
     this.refresh()
   },
 
-  refresh() {
-    const recipes = store.getRecipes()
+  async refresh() {
+    const recipes = await store.getRecipes()
     const categories = ["全部", ...Array.from(new Set(recipes.map(r => r.category || "未分类")))]
     this.setData({ recipes, categories }, () => this.applyFilter())
   },

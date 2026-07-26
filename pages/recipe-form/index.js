@@ -15,9 +15,9 @@ Page({
     ingredients: []
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     if (!options.id) return
-    const recipe = store.getRecipeById(options.id)
+    const recipe = await store.getRecipeById(options.id)
     if (recipe) {
       const ingredients = store.normalizeIngredients(recipe)
       this.setData({
@@ -50,7 +50,7 @@ Page({
     this.setData({ ingredients })
   },
 
-  saveRecipe() {
+  async saveRecipe() {
     const form = {
       ...this.data.form,
       name: this.data.form.name.trim(),
@@ -72,7 +72,7 @@ Page({
       }))
       .filter(it => it.name)
 
-    store.saveRecipe({ ...form, ingredients })
+    await store.saveRecipe({ ...form, ingredients })
     wx.showToast({ title: "已保存" })
     setTimeout(() => wx.navigateBack(), 500)
   },
@@ -82,9 +82,9 @@ Page({
       title: "删除菜谱",
       content: "删除后，今日菜单里的这道菜也会移除。",
       confirmColor: "#b94732",
-      success: result => {
+      success: async result => {
         if (!result.confirm) return
-        store.removeRecipe(this.data.form.id)
+        await store.removeRecipe(this.data.form.id)
         wx.showToast({ title: "已删除" })
         setTimeout(() => wx.navigateBack(), 500)
       }

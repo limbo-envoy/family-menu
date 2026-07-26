@@ -9,8 +9,9 @@ Page({
     this.refresh()
   },
 
-  refresh() {
-    const orders = store.getOrders().map(order => {
+  async refresh() {
+    const rawOrders = await store.getOrders()
+    const orders = rawOrders.map(order => {
       const isNew = Array.isArray(order.dishes)
       const dishes = isNew
         ? order.dishes
@@ -35,10 +36,10 @@ Page({
       title: "删除记录",
       content: "这条点菜记录删除后不能恢复。",
       confirmColor: "#b94732",
-      success: result => {
+      success: async result => {
         if (!result.confirm) return
-        store.removeOrder(id)
-        this.refresh()
+        await store.removeOrder(id)
+        await this.refresh()
         wx.showToast({ title: "已删除" })
       }
     })

@@ -111,14 +111,14 @@ Page({
     this.setData({ candidates })
   },
 
-  saveSelected() {
+  async saveSelected() {
     const selected = this.data.candidates.filter(c => c.checked && c.name.trim())
     if (!selected.length) {
       wx.showToast({ title: "先勾选要入库的", icon: "none" })
       return
     }
-    selected.forEach(c => {
-      store.saveInventoryItem({
+    for (const c of selected) {
+      await store.saveInventoryItem({
         name: c.name.trim(),
         category: store.CATEGORIES[c.categoryIndex] || store.CATEGORIES[0],
         purchaseDate: todayStr(),
@@ -126,7 +126,7 @@ Page({
         quantity: Number(c.qty) || 1,
         unit: c.unit.trim()
       })
-    })
+    }
     wx.showToast({ title: `已录入 ${selected.length} 项`, icon: "success" })
     setTimeout(() => wx.navigateBack(), 600)
   }

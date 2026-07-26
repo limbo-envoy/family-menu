@@ -27,9 +27,9 @@ Page({
     hintMatched: false
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     if (!options.id) return
-    const item = store.getInventoryItem(options.id)
+    const item = await store.getInventoryItem(options.id)
     if (item) {
       const categoryIndex = Math.max(0, store.CATEGORIES.indexOf(item.category))
       const form = { ...emptyForm, ...item, quantity: item.quantity === 0 ? "0" : String(item.quantity) }
@@ -97,7 +97,7 @@ Page({
     this.setData({ form: { ...this.data.form, expiryDate: event.detail.value } })
   },
 
-  saveItem() {
+  async saveItem() {
     const form = this.data.form
     const name = form.name.trim()
     if (!name) {
@@ -109,7 +109,7 @@ Page({
       return
     }
 
-    store.saveInventoryItem({
+    await store.saveInventoryItem({
       id: form.id,
       name,
       category: form.category,
@@ -132,9 +132,9 @@ Page({
       title: "删除食材",
       content: "删除后这份库存记录就没了，不可恢复。",
       confirmColor: "#b94732",
-      success: result => {
+      success: async result => {
         if (!result.confirm) return
-        store.removeInventoryItem(this.data.form.id)
+        await store.removeInventoryItem(this.data.form.id)
         wx.showToast({ title: "已删除" })
         setTimeout(() => wx.navigateBack(), 500)
       }

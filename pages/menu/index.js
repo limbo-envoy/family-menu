@@ -30,11 +30,12 @@ Page({
     this.refresh()
   },
 
-  refresh() {
-    const recipes = store.getRecipes()
-    const inventory = store.getInventory()
-    this.setData({ recipes, inventory, recommended: store.recommendRecipes(6) }, () => {
-      this.applyRecipeFilter()
+  async refresh() {
+    const recipes = await store.getRecipes()
+    const inventory = await store.getInventory()
+    const recommended = await store.recommendRecipes(6)
+    this.setData({ recipes, inventory, recommended }, async () => {
+      await this.applyRecipeFilter()
       this.buildCustomView()
     })
   },
@@ -45,28 +46,26 @@ Page({
   },
 
   /* ---------- 选菜谱模式 ---------- */
-  applyRecipeFilter() {
+  async applyRecipeFilter() {
     const keyword = this.data.keyword.trim().toLowerCase()
-    const filteredRecipes = this.data.recipes
-      .filter(item => {
-        const text = `${item.name} ${item.category}`.toLowerCase()
-        return !keyword || text.includes(keyword)
+    const filteredRecipes = []
+    for (const item of this.data.recipes) {
+      const text = `${item.name} ${item.category}`.toLowerCase()
+      if (keyword && !text.includes(keyword)) continue
+      const check = await store.checkRecipe(item)
+      filteredRecipes.push({
+        ...item,
+        missingCount: check.missing.length,
+        enough: check.ok,
+        ingredientLines: check.lines.map(l => ({
+          name: l.name,
+          unit: l.unit,
+          qty: l.required,
+          available: l.available,
+          sufficient: l.sufficient
+        }))
       })
-      .map(item => {
-        const check = store.checkRecipe(item)
-        return {
-          ...item,
-          missingCount: check.missing.length,
-          enough: check.ok,
-          ingredientLines: check.lines.map(l => ({
-            name: l.name,
-            unit: l.unit,
-            qty: l.required,
-            available: l.available,
-            sufficient: l.sufficient
-          }))
-        }
-      })
+    }
     this.setData({ filteredRecipes })
   },
 
@@ -161,7 +160,7 @@ Page({
   },
 
   /* ---------- 确认开做（弹层） ---------- */
-  openConfirm() {
+  async openConfirm() {
     if (!this.data.planned.length) {
       wx.showToast({ title: "先加几道菜到本餐", icon: "none" })
       return
@@ -174,18 +173,19 @@ Page({
         agg[key].required += Number(req.qty) || 0
       })
     })
-    const lines = Object.values(agg).map(a => {
-      const available = store.getInventoryTotalByName(a.name)
+    const lines = []
+    for (const a of Object.values(agg)) {
+      const available = await store.getInventoryTotalByName(a.name)
       const consume = Math.min(a.required, available)
-      return {
+      lines.push({
         name: a.name,
         unit: a.unit,
         required: a.required,
         available,
         consume,
         shortage: Math.max(0, a.required - consume)
-      }
-    })
+      })
+    }
     const totalShort = lines.reduce((s, l) => s + l.shortage, 0)
     const hasShortage = totalShort > 0
     this.setData({
@@ -217,14 +217,14 @@ Page({
     })
   },
 
-  confirmCook() {
+  async confirmCook() {
     const lines = this.data.confirm.lines
     const finalReqs = lines.map(l => ({
       name: l.name,
       qty: Number(l.consume) || 0,
       unit: l.unit
     }))
-    const results = store.consumeInventory(finalReqs)
+    const results = await store.consumeInventory(finalReqs)
     const consumed = results.map(r => ({
       name: r.name,
       unit: r.unit,
@@ -232,7 +232,7 @@ Page({
       consumed: r.consumed,
       shortage: r.shortage
     }))
-    store.saveOrder({
+    await store.saveOrder({
       note: this.data.note.trim(),
       dishes: this.data.planned.map(d => ({ name: d.name, type: d.type })),
       consumed
@@ -243,7 +243,7 @@ Page({
       note: "",
       confirm: { open: false, lines: [], hasShortage: false, totalShort: 0 }
     })
-    this.refresh()
+    await this.refresh()
     wx.showToast({ title: "已扣减并记账", icon: "success" })
   },
 

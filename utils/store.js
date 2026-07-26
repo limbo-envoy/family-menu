@@ -1306,33 +1306,73 @@ function normalizeName(name) {
   return String(name || "").trim().replace(/\s+/g, "").toLowerCase()
 }
 
-function getList(key) {
+/* ---------------- 存储后端：云数据库 / 本地存储 自动降级 ---------------- */
+// 集合名映射（购物车 cart 仅本地，不进云）
+function collName(key) {
+  if (key === KEYS.recipes) return "recipes"
+  if (key === KEYS.inventory) return "inventory"
+  if (key === KEYS.orders) return "orders"
+  return null
+}
+
+let _db = null
+
+function initCloud(env) {
+  if (wx.cloud && env) {
+    _db = wx.cloud.database()
+  }
+}
+
+function cloudReady() {
+  return !!(wx.cloud && _db)
+}
+
+// 读全部：云端走 collection.get，否则本地存储
+async function getList(key) {
+  if (cloudReady()) {
+    const res = await _db.collection(collName(key)).get()
+    return res.data || []
+  }
   return wx.getStorageSync(key) || []
 }
 
-function setList(key, list) {
+// 覆盖写全部：云端先删旧文档再 upsert，否则本地存储
+async function setList(key, list) {
+  if (cloudReady()) {
+    const col = _db.collection(collName(key))
+    const old = await col.get()
+    const oldIds = (old.data || []).map(d => d._id)
+    if (oldIds.length) {
+      await Promise.all(oldIds.map(id => col.doc(id).remove()))
+    }
+    if (list.length) {
+      await Promise.all(list.map(item => col.doc(String(item.id)).set({ data: item })))
+    }
+    return
+  }
   wx.setStorageSync(key, list)
 }
 
 /* ---------------- 菜谱 ---------------- */
 
-function ensureSeedRecipes() {
-  const existing = getList(KEYS.recipes)
-  // 首次（库为空）时直接写入全部种子
+async function ensureSeedRecipes() {
+  const existing = await getList(KEYS.recipes)
   if (!existing.length) {
-    setList(KEYS.recipes, seedRecipes)
+    // 首次：若本地有旧数据则迁移到云端，否则写入种子
+    const local = wx.getStorageSync(KEYS.recipes) || []
+    await setList(KEYS.recipes, local.length ? local : seedRecipes)
     return
   }
   // 之后每次启动：把种子里「本地还没有」的菜按名称补全，老菜不受影响
   const existingNames = new Set(existing.map(r => normalizeName(r.name)))
   const toAdd = seedRecipes.filter(r => !existingNames.has(normalizeName(r.name)))
   if (toAdd.length) {
-    setList(KEYS.recipes, [...toAdd, ...existing])
+    await setList(KEYS.recipes, [...toAdd, ...existing])
   }
 }
 
-function getRecipes() {
-  ensureSeedRecipes()
+async function getRecipes() {
+  await ensureSeedRecipes()
   return getList(KEYS.recipes)
 }
 
@@ -1357,8 +1397,8 @@ function normalizeIngredients(recipe) {
     .filter(it => it.name)
 }
 
-function saveRecipe(recipe) {
-  const recipes = getRecipes()
+async function saveRecipe(recipe) {
+  const recipes = await getRecipes()
   const now = formatDate(new Date())
   const nextRecipe = {
     ...recipe,
@@ -1374,19 +1414,21 @@ function saveRecipe(recipe) {
     recipes.unshift(nextRecipe)
   }
 
-  setList(KEYS.recipes, recipes)
+  await setList(KEYS.recipes, recipes)
   return nextRecipe
 }
 
-function removeRecipe(id) {
-  setList(KEYS.recipes, getRecipes().filter(item => item.id !== id))
+async function removeRecipe(id) {
+  const recipes = await getRecipes()
+  await setList(KEYS.recipes, recipes.filter(item => item.id !== id))
   const cart = getCart()
   delete cart[id]
   setCart(cart)
 }
 
-function getRecipeById(id) {
-  return getRecipes().find(item => item.id === id) || null
+async function getRecipeById(id) {
+  const recipes = await getRecipes()
+  return recipes.find(item => item.id === id) || null
 }
 
 /* ---------------- 购物车（兼容旧逻辑，保留但不再主用） ---------------- */
@@ -1401,20 +1443,21 @@ function setCart(cart) {
 
 /* ---------------- 食材库存 ---------------- */
 
-function ensureSeedInventory() {
-  const inventory = getList(KEYS.inventory)
+async function ensureSeedInventory() {
+  const inventory = await getList(KEYS.inventory)
   if (!inventory.length) {
-    setList(KEYS.inventory, seedInventory)
+    const local = wx.getStorageSync(KEYS.inventory) || []
+    await setList(KEYS.inventory, local.length ? local : seedInventory)
   }
 }
 
-function getInventory() {
-  ensureSeedInventory()
+async function getInventory() {
+  await ensureSeedInventory()
   return getList(KEYS.inventory)
 }
 
-function saveInventoryItem(item) {
-  const inventory = getInventory()
+async function saveInventoryItem(item) {
+  const inventory = await getInventory()
   const now = formatDate(new Date())
   const nextItem = {
     ...item,
@@ -1431,21 +1474,24 @@ function saveInventoryItem(item) {
     inventory.unshift(nextItem)
   }
 
-  setList(KEYS.inventory, inventory)
+  await setList(KEYS.inventory, inventory)
   return nextItem
 }
 
-function removeInventoryItem(id) {
-  setList(KEYS.inventory, getInventory().filter(it => it.id !== id))
+async function removeInventoryItem(id) {
+  const inventory = await getInventory()
+  await setList(KEYS.inventory, inventory.filter(it => it.id !== id))
 }
 
-function getInventoryItem(id) {
-  return getInventory().find(it => it.id === id) || null
+async function getInventoryItem(id) {
+  const inventory = await getInventory()
+  return inventory.find(it => it.id === id) || null
 }
 
 // 按名称汇总某食材的库存总量
-function getInventoryTotalByName(name) {
-  return getInventory()
+async function getInventoryTotalByName(name) {
+  const inventory = await getInventory()
+  return inventory
     .filter(it => normalizeName(it.name) === normalizeName(name))
     .reduce((sum, it) => sum + (Number(it.quantity) || 0), 0)
 }
@@ -1463,9 +1509,9 @@ function expiryStatus(expiryDate) {
 }
 
 // 检查一组需求 [{name, qty, unit}] 的库存满足情况
-function checkAvailability(requirements) {
-  return (requirements || []).map(req => {
-    const available = getInventoryTotalByName(req.name)
+async function checkAvailability(requirements) {
+  return Promise.all((requirements || []).map(async req => {
+    const available = await getInventoryTotalByName(req.name)
     const required = Number(req.qty) || 0
     return {
       name: req.name,
@@ -1474,13 +1520,13 @@ function checkAvailability(requirements) {
       available,
       sufficient: available >= required
     }
-  })
+  }))
 }
 
 // 检查单个菜谱是否食材充足，返回 {ok, missing:[{name,required,available}]}
-function checkRecipe(recipe) {
+async function checkRecipe(recipe) {
   const requirements = normalizeIngredients(recipe)
-  const lines = checkAvailability(requirements)
+  const lines = await checkAvailability(requirements)
   const missing = lines.filter(l => !l.sufficient)
   return {
     ok: missing.length === 0,
@@ -1491,13 +1537,14 @@ function checkRecipe(recipe) {
 
 // 根据当前库存推荐菜谱：先按「食材齐备数」降序，再按齐备比例降序
 // 返回 [{id, name, category, total, available, enough, ingredients}]
-function recommendRecipes(limit) {
-  const scored = getRecipes().map(recipe => {
-    const lines = checkAvailability(normalizeIngredients(recipe))
+async function recommendRecipes(limit) {
+  const recipes = await getRecipes()
+  const scored = await Promise.all(recipes.map(async recipe => {
+    const lines = await checkAvailability(normalizeIngredients(recipe))
     const total = lines.length
     const available = lines.filter(l => l.sufficient).length
     return { recipe, total, available, ratio: total ? available / total : 0 }
-  })
+  }))
   scored.sort((a, b) => {
     if (b.available !== a.available) return b.available - a.available
     return b.ratio - a.ratio
@@ -1516,14 +1563,14 @@ function recommendRecipes(limit) {
     }))
 }
 
-  // 扣减库存：requirements=[{name, qty, unit}]，按购入日期早的优先消耗（FIFO）
-  // 返回 [{name, unit, required, consumed, shortage}]
-  function consumeInventory(requirements) {
-    const inventory = getInventory()
-    const results = []
-    const toRemove = []
+// 扣减库存：requirements=[{name, qty, unit}]，按购入日期早的优先消耗（FIFO）
+// 返回 [{name, unit, required, consumed, shortage}]
+async function consumeInventory(requirements) {
+  const inventory = await getInventory()
+  const results = []
+  const toRemove = []
 
-    ;(requirements || []).forEach(req => {
+  ;(requirements || []).forEach(req => {
     const target = normalizeName(req.name)
     const needed = Number(req.qty) || 0
     // 同名称库存按购入日期升序（早买的先吃），未填购入日期的排后面
@@ -1559,32 +1606,33 @@ function recommendRecipes(limit) {
 
   // 写回库存（移除归零项）
   const remain = inventory.filter(it => !toRemove.includes(it.id))
-  setList(KEYS.inventory, remain)
+  await setList(KEYS.inventory, remain)
 
   return results
 }
 
 /* ---------------- 做饭记录（记账） ---------------- */
 
-function getOrders() {
+async function getOrders() {
   return getList(KEYS.orders)
 }
 
 // order: { note, dishes:[{name, type}], consumed:[{name, unit, required, consumed, shortage}] }
-function saveOrder(order) {
-  const orders = getOrders()
+async function saveOrder(order) {
+  const orders = await getOrders()
   const nextOrder = {
     id: createId("order"),
     createdAt: formatDate(new Date()),
     ...order
   }
   orders.unshift(nextOrder)
-  setList(KEYS.orders, orders)
+  await setList(KEYS.orders, orders)
   return nextOrder
 }
 
-function removeOrder(id) {
-  setList(KEYS.orders, getOrders().filter(item => item.id !== id))
+async function removeOrder(id) {
+  const orders = await getOrders()
+  await setList(KEYS.orders, orders.filter(item => item.id !== id))
 }
 
 module.exports = {
@@ -1592,6 +1640,7 @@ module.exports = {
   normalizeName,
   getIngredientHint,
   addDays,
+  initCloud,
   ensureSeedRecipes,
   getRecipes,
   getRecipeById,

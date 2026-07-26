@@ -20,8 +20,8 @@ Page({
     this.refresh()
   },
 
-  refresh() {
-    const inventory = store.getInventory()
+  async refresh() {
+    const inventory = await store.getInventory()
     this.setData({ inventory }, () => this.applyFilter())
   },
 
