@@ -1316,10 +1316,18 @@ function collName(key) {
 }
 
 let _db = null
+const _pending = new Map()
+
+function runOnce(key, fn) {
+  if (_pending.get(key)) return _pending.get(key)
+  const p = fn().finally(() => _pending.delete(key))
+  _pending.set(key, p)
+  return p
+}
 
 function initCloud(env) {
   if (wx.cloud && env) {
-    _db = wx.cloud.database()
+    _db = wx.cloud.database({ env })
   }
 }
 
@@ -1327,26 +1335,67 @@ function cloudReady() {
   return !!(wx.cloud && _db)
 }
 
-// 读全部：云端走 collection.get，否则本地存储
+// 分页读取云数据库全部文档（.get 默认 limit 20）
+async function cloudGetAll(col) {
+  const batch = 100
+  let all = []
+  let skip = 0
+  while (true) {
+    const res = await col.limit(batch).skip(skip).get()
+    const data = res.data || []
+    all = all.concat(data)
+    if (data.length < batch) break
+    skip += batch
+  }
+  return all
+}
+
+// 读全部：云端分页拉取，否则本地存储
 async function getList(key) {
   if (cloudReady()) {
-    const res = await _db.collection(collName(key)).get()
-    return res.data || []
+    const col = _db.collection(collName(key))
+    const all = await cloudGetAll(col)
+    return all
   }
   return wx.getStorageSync(key) || []
 }
 
-// 覆盖写全部：云端先删旧文档再 upsert，否则本地存储
+// 覆盖写全部：云端做增量 diff（新增/更新/删除），避免全量删写，否则本地存储
 async function setList(key, list) {
   if (cloudReady()) {
     const col = _db.collection(collName(key))
-    const old = await col.get()
-    const oldIds = (old.data || []).map(d => d._id)
-    if (oldIds.length) {
-      await Promise.all(oldIds.map(id => col.doc(id).remove()))
+    const oldDocs = await cloudGetAll(col)
+    const oldById = new Map()
+    oldDocs.forEach(doc => {
+      const id = doc._id || doc.id
+      if (id) oldById.set(String(id), doc)
+    })
+
+    const newById = new Map()
+    ;(list || []).forEach(item => {
+      const id = String(item.id)
+      newById.set(id, item)
+    })
+
+    const toRemove = []
+    oldById.forEach((doc, id) => {
+      if (!newById.has(id)) toRemove.push(doc._id)
+    })
+
+    const toSet = []
+    newById.forEach((item, id) => {
+      const old = oldById.get(id)
+      // 简化判断：只要新对象存在就 set（云开发 set 会覆盖）
+      toSet.push(item)
+    })
+
+    // 分批执行，避免一次性 Promise.all 过多触发并发限制
+    const batchSize = 20
+    for (let i = 0; i < toRemove.length; i += batchSize) {
+      await Promise.all(toRemove.slice(i, i + batchSize).map(id => col.doc(id).remove()))
     }
-    if (list.length) {
-      await Promise.all(list.map(item => col.doc(String(item.id)).set({ data: item })))
+    for (let i = 0; i < toSet.length; i += batchSize) {
+      await Promise.all(toSet.slice(i, i + batchSize).map(item => col.doc(String(item.id)).set({ data: item })))
     }
     return
   }
@@ -1356,24 +1405,26 @@ async function setList(key, list) {
 /* ---------------- 菜谱 ---------------- */
 
 async function ensureSeedRecipes() {
-  const existing = await getList(KEYS.recipes)
-  if (!existing.length) {
-    // 首次：若本地有旧数据则迁移到云端，否则写入种子
-    const local = wx.getStorageSync(KEYS.recipes) || []
-    await setList(KEYS.recipes, local.length ? local : seedRecipes)
-    return
-  }
-  // 之后每次启动：把种子里「本地还没有」的菜按名称补全，老菜不受影响
-  const existingNames = new Set(existing.map(r => normalizeName(r.name)))
-  const toAdd = seedRecipes.filter(r => !existingNames.has(normalizeName(r.name)))
-  if (toAdd.length) {
-    await setList(KEYS.recipes, [...toAdd, ...existing])
-  }
+  return runOnce("ensureSeedRecipes", async () => {
+    const existing = await getList(KEYS.recipes)
+    if (!existing.length) {
+      // 首次：若本地有旧数据则迁移到云端，否则写入种子
+      const local = wx.getStorageSync(KEYS.recipes) || []
+      await setList(KEYS.recipes, local.length ? local : seedRecipes)
+      return
+    }
+    // 之后每次启动：把种子里「本地还没有」的菜按名称补全，老菜不受影响
+    const existingNames = new Set(existing.map(r => normalizeName(r.name)))
+    const toAdd = seedRecipes.filter(r => !existingNames.has(normalizeName(r.name)))
+    if (toAdd.length) {
+      await setList(KEYS.recipes, [...toAdd, ...existing])
+    }
+  })
 }
 
 async function getRecipes() {
   await ensureSeedRecipes()
-  return getList(KEYS.recipes)
+  return await getList(KEYS.recipes)
 }
 
 // 把菜谱里的 ingredients 统一成 [{name, qty, unit}] 结构
@@ -1444,16 +1495,18 @@ function setCart(cart) {
 /* ---------------- 食材库存 ---------------- */
 
 async function ensureSeedInventory() {
-  const inventory = await getList(KEYS.inventory)
-  if (!inventory.length) {
-    const local = wx.getStorageSync(KEYS.inventory) || []
-    await setList(KEYS.inventory, local.length ? local : seedInventory)
-  }
+  return runOnce("ensureSeedInventory", async () => {
+    const inventory = await getList(KEYS.inventory)
+    if (!inventory.length) {
+      const local = wx.getStorageSync(KEYS.inventory) || []
+      await setList(KEYS.inventory, local.length ? local : seedInventory)
+    }
+  })
 }
 
 async function getInventory() {
   await ensureSeedInventory()
-  return getList(KEYS.inventory)
+  return await getList(KEYS.inventory)
 }
 
 async function saveInventoryItem(item) {
