@@ -61,6 +61,140 @@
   color: #b9772a;
 }
 
+/* 提示 & 展开交互 */
+.hint {
+  color: #8a857c;
+  font-size: 22rpx;
+  margin-bottom: 14rpx;
+}
+
+.recipe-main {
+  cursor: pointer;
+}
+
+.chevron {
+  display: inline-block;
+  margin-left: 10rpx;
+  color: #8a857c;
+  font-size: 22rpx;
+  transition: transform 0.2s ease;
+}
+
+.chevron-on {
+  transform: rotate(180deg);
+}
+
+.ing-panel {
+  margin-top: 14rpx;
+  padding: 16rpx 6rpx 4rpx;
+  border-top: 1rpx dashed #ece4d7;
+}
+
+.ing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10rpx 0;
+}
+
+.ing-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  color: #443f38;
+}
+
+.ing-qty {
+  flex: 0 0 auto;
+  margin: 0 18rpx;
+  font-size: 25rpx;
+  color: #6c6a64;
+}
+
+.ing-stock {
+  flex: 0 0 auto;
+  padding: 2rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+}
+
+.ing-stock.ok {
+  background: #edf6f1;
+  color: #2f7058;
+}
+
+.ing-stock.short {
+  background: #fdf3e2;
+  color: #b9772a;
+}
+
+.ing-steps,
+.ing-note {
+  margin-top: 10rpx;
+  font-size: 23rpx;
+  color: #77736a;
+  line-height: 1.6;
+}
+
+/* 根据库存推荐 */
+.reco {
+  background: #f3f8f5;
+  border-color: #d7e3dc;
+}
+
+.reco-title {
+  font-size: 27rpx;
+  font-weight: 700;
+  color: #2f7058;
+}
+
+.reco-scroll {
+  margin-top: 16rpx;
+  white-space: nowrap;
+}
+
+.reco-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  width: 168rpx;
+  padding: 18rpx 10rpx;
+  margin-right: 14rpx;
+  background: #ffffff;
+  border: 1rpx solid #e3ece7;
+  border-radius: 14rpx;
+}
+
+.reco-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #443f38;
+  text-align: center;
+}
+
+.reco-pill {
+  padding: 3rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 21rpx;
+}
+
+.reco-pill.ok {
+  background: #edf6f1;
+  color: #2f7058;
+}
+
+.reco-pill.part {
+  background: #fdf3e2;
+  color: #b9772a;
+}
+
+.reco-hint {
+  margin-top: 14rpx;
+  color: #8a857c;
+  font-size: 22rpx;
+}
+
 /* 配食材 */
 .dish-name {
   width: 100%;

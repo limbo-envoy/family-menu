@@ -9,23 +9,30 @@
 
   <input class="search" placeholder="搜索菜名、分类" value="{{keyword}}" bindinput="onSearch" />
 
-  <view class="card" wx:for="{{filteredRecipes}}" wx:key="id" data-id="{{item.id}}" bindtap="editRecipe">
-    <view class="row">
-      <view class="recipe-main">
-        <view class="name">{{item.name}}</view>
-        <view class="meta">
-          <text class="tag">{{item.category || '未分类'}}</text>
-        </view>
-        <view class="ings" wx:if="{{item.ingredients.length}}">
-          <text class="ing-chip" wx:for="{{item.ingredients}}" wx:for-item="ing" wx:key="name">{{ing.name}}{{ing.qty ? ing.qty + ing.unit : ''}}</text>
-        </view>
-        <view class="note" wx:if="{{item.note}}">{{item.note}}</view>
-      </view>
-      <view class="arrow">›</view>
-    </view>
-  </view>
+  <scroll-view class="cat-tabs" scroll-x="true">
+    <view class="cat-tab {{activeCategory === item ? 'cat-on' : ''}}" wx:for="{{categories}}" wx:key="*this" data-cat="{{item}}" bindtap="setCategory">{{item}}</view>
+  </scroll-view>
 
-  <view class="empty" wx:if="{{!filteredRecipes.length}}">
+  <block wx:for="{{groups}}" wx:key="category" wx:for-item="group">
+    <view class="group-title">{{group.category}}<text class="group-count">{{group.items.length}}</text></view>
+    <view class="card" wx:for="{{group.items}}" wx:for-item="item" wx:key="id" data-id="{{item.id}}" bindtap="editRecipe">
+      <view class="row">
+        <view class="recipe-main">
+          <view class="name">{{item.name}}</view>
+          <view class="meta">
+            <text class="tag">{{item.category || '未分类'}}</text>
+          </view>
+          <view class="ings" wx:if="{{item.ingredients.length}}">
+            <text class="ing-chip" wx:for="{{item.ingredients}}" wx:for-item="ing" wx:key="name">{{ing.name}}{{ing.qty ? ing.qty + ing.unit : ''}}</text>
+          </view>
+          <view class="note" wx:if="{{item.note}}">{{item.note}}</view>
+        </view>
+        <view class="arrow">›</view>
+      </view>
+    </view>
+  </block>
+
+  <view class="empty" wx:if="{{!groups.length}}">
     还没有这道菜，点右上角新增。
   </view>
 </view>

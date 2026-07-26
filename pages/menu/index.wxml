@@ -15,19 +15,42 @@
 
   <!-- 选菜谱模式 -->
   <block wx:if="{{mode === 'recipe'}}">
+    <!-- 根据库存推荐 -->
+    <view class="card reco" wx:if="{{recommended.length}}">
+      <view class="reco-title">🍳 根据库存，今天能做的菜</view>
+      <scroll-view class="reco-scroll" scroll-x="true">
+        <view class="reco-item" wx:for="{{recommended}}" wx:key="id" data-id="{{item.id}}" bindtap="addRecipeDish">
+          <view class="reco-name">{{item.name}}</view>
+          <view class="reco-pill {{item.enough ? 'ok' : 'part'}}">{{item.enough ? '食材齐全' : '差 ' + (item.total - item.available) + ' 样'}}</view>
+        </view>
+      </scroll-view>
+      <view class="reco-hint">点一下直接加入本餐</view>
+    </view>
+
     <input class="search" placeholder="搜索菜名、分类" value="{{keyword}}" bindinput="onSearch" />
+    <view class="hint">点击菜名展开食材清单</view>
     <view class="card recipe-card" wx:for="{{filteredRecipes}}" wx:key="id">
       <view class="row">
-        <view class="recipe-main">
+        <view class="recipe-main" data-id="{{item.id}}" bindtap="toggleRecipe">
           <view class="name">{{item.name}}</view>
           <view class="meta">
             <text class="tag">{{item.category || '未分类'}}</text>
             <text class="badge {{item.enough ? 'badge-ok' : 'badge-short'}}">
               {{item.enough ? '食材充足' : '缺 ' + item.missingCount + ' 种'}}
             </text>
+            <text class="chevron {{expandedId === item.id ? 'chevron-on' : ''}}">▾</text>
           </view>
         </view>
-        <button class="round-add" data-id="{{item.id}}" bindtap="addRecipeDish">加入</button>
+        <button class="round-add" data-id="{{item.id}}" catchtap="addRecipeDish">加入</button>
+      </view>
+      <view class="ing-panel" wx:if="{{expandedId === item.id}}">
+        <view class="ing-row" wx:for="{{item.ingredientLines}}" wx:for-item="ing" wx:key="name">
+          <text class="ing-name">{{ing.name}}</text>
+          <text class="ing-qty">{{ing.qty}}{{ing.unit}}</text>
+          <text class="ing-stock {{ing.sufficient ? 'ok' : 'short'}}">{{ing.sufficient ? '有货' : '缺货'}}</text>
+        </view>
+        <view class="ing-steps" wx:if="{{item.steps}}">做法：{{item.steps}}</view>
+        <view class="ing-note" wx:if="{{item.note}}">备注：{{item.note}}</view>
       </view>
     </view>
     <view class="empty" wx:if="{{!filteredRecipes.length}}">没找到菜。去菜谱库添加一道吧。</view>

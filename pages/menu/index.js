@@ -9,8 +9,10 @@ Page({
   data: {
     mode: MODE_RECIPE,
     keyword: "",
+    expandedId: "",
     recipes: [],
     filteredRecipes: [],
+    recommended: [],
     inventory: [],
     customIngredients: [], // 配食材视图：库存项 + useQty
     customName: "",
@@ -31,7 +33,7 @@ Page({
   refresh() {
     const recipes = store.getRecipes()
     const inventory = store.getInventory()
-    this.setData({ recipes, inventory }, () => {
+    this.setData({ recipes, inventory, recommended: store.recommendRecipes(6) }, () => {
       this.applyRecipeFilter()
       this.buildCustomView()
     })
@@ -55,7 +57,14 @@ Page({
         return {
           ...item,
           missingCount: check.missing.length,
-          enough: check.ok
+          enough: check.ok,
+          ingredientLines: check.lines.map(l => ({
+            name: l.name,
+            unit: l.unit,
+            qty: l.required,
+            available: l.available,
+            sufficient: l.sufficient
+          }))
         }
       })
     this.setData({ filteredRecipes })
@@ -63,6 +72,12 @@ Page({
 
   onSearch(event) {
     this.setData({ keyword: event.detail.value }, () => this.applyRecipeFilter())
+  },
+
+  // 点击菜名展开/收起食材清单
+  toggleRecipe(event) {
+    const id = event.currentTarget.dataset.id
+    this.setData({ expandedId: this.data.expandedId === id ? "" : id })
   },
 
   addRecipeDish(event) {

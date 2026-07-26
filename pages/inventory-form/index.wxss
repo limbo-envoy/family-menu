@@ -47,6 +47,48 @@
   color: #aaa298;
 }
 
+/* 保存方法提示块 */
+.storage-tip {
+  margin: -6rpx 0 22rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 12rpx;
+  background: #f3f8f2;
+  border: 1rpx solid #d9e8d6;
+}
+
+.tip-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.tip-icon {
+  font-size: 26rpx;
+  margin-right: 8rpx;
+}
+
+.tip-title {
+  font-size: 25rpx;
+  font-weight: 600;
+  color: #2f7058;
+}
+
+.tip-badge {
+  margin-left: 12rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  color: #8a6d3b;
+  background: #fbf0db;
+}
+
+.tip-body {
+  display: block;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #5b6b57;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr;

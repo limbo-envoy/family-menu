@@ -4,6 +4,15 @@
     <input class="field-input" placeholder="比如 鸡蛋、生抽、冻虾" value="{{form.name}}" data-field="name" bindinput="onInput" />
   </view>
 
+  <view class="storage-tip" wx:if="{{storageTip}}">
+    <view class="tip-head">
+      <text class="tip-icon">💡</text>
+      <text class="tip-title">保存方法</text>
+      <text class="tip-badge" wx:if="{{!hintMatched}}">未匹配 · 仅供参考</text>
+    </view>
+    <text class="tip-body">{{storageTip}}</text>
+  </view>
+
   <view class="field">
     <view class="label">分类</view>
     <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
