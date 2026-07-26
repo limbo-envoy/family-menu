@@ -13,7 +13,9 @@ Page({
     sortMode: "status", // status=状态优先 / expiry=按保质期最早
     inventory: [],
     filtered: [],
-    reminder: null // { expired, soon }
+    reminder: null, // { expired, soon }
+    editMode: false, // 批量管理模式
+    selectedIds: [] // 已勾选的库存项 id
   },
 
   onShow() {
@@ -32,6 +34,7 @@ Page({
       .filter(item => active === "全部" || item.category === active)
       .map(item => ({
         ...item,
+        selected: this.data.selectedIds.indexOf(item.id) > -1,
         status: store.expiryStatus(item.expiryDate),
         quantityText: `${item.quantity} ${item.unit || ""}`.trim(),
         expiryText: item.expiryDate ? `保质期至 ${item.expiryDate}` : "未填保质期"
@@ -78,5 +81,60 @@ Page({
   editItem(event) {
     const id = event.currentTarget.dataset.id
     wx.navigateTo({ url: `/pages/inventory-form/index?id=${id}` })
+  },
+
+  /* ---------- 批量管理 ---------- */
+  onItemTap(event) {
+    const id = event.currentTarget.dataset.id
+    if (!this.data.editMode) {
+      wx.navigateTo({ url: `/pages/inventory-form/index?id=${id}` })
+      return
+    }
+    this.toggleSelect(id)
+  },
+
+  toggleManage() {
+    this.setData({ editMode: !this.data.editMode, selectedIds: [] })
+  },
+
+  toggleSelect(id) {
+    const selected = new Set(this.data.selectedIds.map(String))
+    if (selected.has(String(id))) {
+      selected.delete(String(id))
+    } else {
+      selected.add(String(id))
+    }
+    this.setData({ selectedIds: Array.from(selected) }, () => this.applyFilter())
+  },
+
+  selectAll() {
+    if (this.data.selectedIds.length === this.data.filtered.length) {
+      this.setData({ selectedIds: [] }, () => this.applyFilter())
+    } else {
+      this.setData({ selectedIds: this.data.filtered.map(i => i.id) }, () => this.applyFilter())
+    }
+  },
+
+  async confirmDelete() {
+    const ids = this.data.selectedIds
+    if (!ids.length) return
+    const res = await new Promise(resolve =>
+      wx.showModal({
+        title: "确认删除",
+        content: `确定删除选中的 ${ids.length} 项食材吗？此操作不可恢复。`,
+        confirmColor: "#e34d59",
+        success: resolve
+      })
+    )
+    if (!res.confirm) return
+    try {
+      await store.removeInventoryItems(ids)
+      this.setData({ editMode: false, selectedIds: [] })
+      await this.refresh()
+      wx.showToast({ title: "已删除", icon: "success" })
+    } catch (e) {
+      console.error("[inventory] 批量删除失败：", e)
+      wx.showToast({ title: "删除失败", icon: "none" })
+    }
   }
 })

@@ -1785,6 +1785,14 @@ async function removeInventoryItem(id) {
   await setList(KEYS.inventory, inventory.filter(it => it.id !== id))
 }
 
+// 批量删除库存项
+async function removeInventoryItems(ids) {
+  const idSet = new Set((ids || []).map(id => String(id)))
+  if (!idSet.size) return
+  const inventory = await getInventory()
+  await setList(KEYS.inventory, inventory.filter(it => !idSet.has(String(it.id))))
+}
+
 async function getInventoryItem(id) {
   const inventory = await getInventory()
   return inventory.find(it => it.id === id) || null
@@ -1997,6 +2005,7 @@ module.exports = {
   getInventoryTotalByName,
   saveInventoryItem,
   removeInventoryItem,
+  removeInventoryItems,
   expiryStatus,
   checkAvailability,
   checkRecipe,

@@ -210,3 +210,99 @@
   color: #77736a;
   text-align: center;
 }
+
+/* 批量管理按钮 */
+.action-manage {
+  background: #f6f4ef;
+  color: #6c6a64;
+  border: 1rpx solid #e3ded4;
+}
+
+.action-manage.on {
+  background: #fdecea;
+  color: #c0392b;
+  border-color: #f3c6bf;
+}
+
+/* 进入管理模式的列表项 */
+.item-edit {
+  padding-left: 12rpx;
+}
+
+.item-selected {
+  background: #eef7f2;
+  border: 1rpx solid #b9dccb;
+}
+
+/* 复选框 */
+.check {
+  flex: 0 0 auto;
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
+  border-radius: 50%;
+  border: 2rpx solid #c7c1b6;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #ffffff;
+}
+
+.check-on {
+  background: #2f7058;
+  border-color: #2f7058;
+}
+
+/* 底部批量操作栏 */
+.batch-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 28rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-top: 1rpx solid #ece7df;
+  box-shadow: 0 -6rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+
+.batch-left {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  font-size: 28rpx;
+  color: #443f38;
+}
+
+.batch-del {
+  flex: 0 0 auto;
+  height: 80rpx;
+  margin: 0;
+  padding: 0 36rpx;
+  border-radius: 999rpx;
+  background: #e34d59;
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 80rpx;
+}
+
+.batch-del::after {
+  border: 0;
+}
+
+.batch-del[disabled] {
+  background: #e9cfd2;
+  color: #ffffff;
+}
+
+/* 给底部操作栏留出空间 */
+.page.has-batch {
+  padding-bottom: 150rpx;
+}

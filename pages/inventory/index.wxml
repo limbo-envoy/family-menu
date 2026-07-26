@@ -1,4 +1,4 @@
-<view class="page">
+<view class="page {{editMode ? 'has-batch' : ''}}">
   <!-- 快捷操作 -->
   <view class="action-row">
     <button class="action-btn action-secondary" bindtap="scanReceipt">
@@ -8,6 +8,10 @@
     <button class="action-btn action-primary" bindtap="addItem">
       <text class="action-icon">＋</text>
       <text>录入食材</text>
+    </button>
+    <button class="action-btn action-manage {{editMode ? 'on' : ''}}" bindtap="toggleManage">
+      <text class="action-icon">{{editMode ? '✕' : '☑'}}</text>
+      <text>{{editMode ? '退出管理' : '批量管理'}}</text>
     </button>
   </view>
 
@@ -43,7 +47,10 @@
   </view>
 
   <!-- 列表 -->
-  <view class="card item" wx:for="{{filtered}}" wx:key="id" data-id="{{item.id}}" bindtap="editItem">
+  <view class="card item {{item.selected ? 'item-selected' : ''}} {{editMode ? 'item-edit' : ''}}" wx:for="{{filtered}}" wx:key="id" data-id="{{item.id}}" bindtap="onItemTap">
+    <view class="check {{item.selected ? 'check-on' : ''}}" wx:if="{{editMode}}">
+      <text wx:if="{{item.selected}}">✓</text>
+    </view>
     <view class="row">
       <view class="item-main">
         <view class="name">{{item.name}}</view>
@@ -62,11 +69,24 @@
         <block wx:elif="{{item.status === 'soon'}}">临期</block>
         <block wx:else>无期限</block>
       </view>
-      <view class="arrow">›</view>
+      <view class="arrow" wx:if="{{!editMode}}">›</view>
     </view>
   </view>
 
   <view class="empty" wx:if="{{!filtered.length}}">
     还没有记录。点上方「录入食材」添加刚买回来的食材，或「扫小票」批量录入。
+  </view>
+
+  <!-- 批量管理操作栏 -->
+  <view class="batch-bar" wx:if="{{editMode}}">
+    <view class="batch-left" bindtap="selectAll">
+      <view class="check {{selectedIds.length === filtered.length ? 'check-on' : ''}}">
+        <text wx:if="{{selectedIds.length === filtered.length}}">✓</text>
+      </view>
+      <text>{{selectedIds.length === filtered.length ? '取消全选' : '全选'}}</text>
+    </view>
+    <button class="batch-del" bindtap="confirmDelete" disabled="{{!selectedIds.length}}">
+      删除选中（{{selectedIds.length}}）
+    </button>
   </view>
 </view>
