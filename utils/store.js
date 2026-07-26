@@ -1646,7 +1646,12 @@ async function getRecipes() {
   await ensureSeedRecipes()
   try {
     const list = await getList(KEYS.recipes)
-    if (list && list.length) return list
+    if (list && list.length) {
+      // 云端读到了数据：把种子里云端缺失的菜（如减脂餐）前端补全，不依赖写入权限
+      const cloudNames = new Set(list.map(r => normalizeName(r.name)))
+      const missing = seedRecipes.filter(r => !cloudNames.has(normalizeName(r.name)))
+      return missing.length ? [...missing, ...list] : list
+    }
     // 云端读取成功但为空（权限/集合被清等），降级到本地种子，避免页面空白
     console.warn("[getRecipes] 云端返回空，降级到本地种子")
     return seedRecipes
@@ -1743,7 +1748,11 @@ async function getInventory() {
   await ensureSeedInventory()
   try {
     const list = await getList(KEYS.inventory)
-    if (list && list.length) return list
+    if (list && list.length) {
+      const cloudNames = new Set(list.map(i => normalizeName(i.name)))
+      const missing = seedInventory.filter(i => !cloudNames.has(normalizeName(i.name)))
+      return missing.length ? [...missing, ...list] : list
+    }
     console.warn("[getInventory] 云端返回空，降级到本地种子")
     return seedInventory
   } catch (e) {
