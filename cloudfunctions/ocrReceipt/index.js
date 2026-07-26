@@ -1,42 +1,47 @@
-// 云函数 ocrReceipt：接收小程序上传的小票图片 fileID，
-// 下载后用腾讯云 OCR（通用印刷体识别）识别文字并返回。
-//
-// 部署前准备：
-// 1. 在腾讯云控制台开通「文字识别 OCR」服务。
-// 2. 在云函数环境变量里配置：
-//      TENCENT_SECRET_ID=你的SecretId
-//      TENCENT_SECRET_KEY=你的SecretKey
-//    （不要用明文写进代码）
-// 3. 在云函数目录执行 npm install 安装依赖后再上传部署。
-
 const cloud = require("wx-server-sdk")
-const tencentcloud = require("tencentcloud-sdk-nodejs")
-
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
-const OcrClient = tencentcloud.ocr.v20181119.Client
-const client = new OcrClient({
-  credential: {
-    secretId: process.env.TENCENT_SECRET_ID,
-    secretKey: process.env.TENCENT_SECRET_KEY
-  },
-  region: "ap-guangzhou",
-  profile: { httpProfile: { endpoint: "ocr.tencentcloudapi.com" } }
-})
+const https = require("https")
+const url = require("url")
 
-exports.main = async event => {
+function downloadBuffer(fileUrl) {
+  return new Promise((resolve, reject) => {
+    const parsed = url.parse(fileUrl)
+    https
+      .get({ hostname: parsed.hostname, path: parsed.path }, res => {
+        const contentType = res.headers["content-type"] || "image/jpeg"
+        const chunks = []
+        res.on("data", chunk => chunks.push(chunk))
+        res.on("end", () => resolve({ buffer: Buffer.concat(chunks), contentType }))
+      })
+      .on("error", reject)
+  })
+}
+
+exports.main = async (event) => {
   const { fileID } = event
-  if (!fileID) return { text: "" }
+  if (!fileID) return { error: "缺少 fileID" }
 
-  // 1. 从云存储下载图片
-  const file = await cloud.downloadFile({ fileID })
-  const base64 = file.fileContent.toString("base64")
+  try {
+    // 1. 把云存储 fileID 转成可下载的 HTTPS 临时链接
+    const { fileList } = await cloud.getTempFileURL({ fileList: [fileID] })
+    const fileUrl = fileList[0].tempFileURL
+    if (!fileUrl) return { error: "无法获取图片下载链接" }
 
-  // 2. 调用通用印刷体识别
-  const res = await client.GeneralBasicOCR({ ImageBase64: base64 })
-  const text = (res.TextDetections || [])
-    .map(item => item.DetectedText)
-    .join("\n")
+    // 2. 下载图片 Buffer
+    const { buffer, contentType } = await downloadBuffer(fileUrl)
 
-  return { text }
+    // 3. 调用微信 OCR 通用印刷体文字识别
+    const res = await cloud.openapi.ocr.printedTextOCR({
+      img: { contentType, value: buffer }
+    })
+
+    // 4. 把识别结果拼接成纯文本返回（兼容云调用的两种返回结构）
+    const items = (res && res.items) || (res && res.result && res.result.items) || []
+    const text = items.map(i => i.text).join("\n")
+    return { text }
+  } catch (err) {
+    console.error("[ocrReceipt] 识别失败：", err)
+    return { error: err.errMsg || err.message || String(err) }
+  }
 }

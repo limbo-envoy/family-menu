@@ -1,10 +1,10 @@
 {
   "name": "ocrReceipt",
   "version": "1.0.0",
-  "description": "小票图片 OCR 识别云函数",
+  "description": "识别小票图片中的商品文字",
   "main": "index.js",
   "dependencies": {
-    "wx-server-sdk": "~2.6.3",
-    "tencentcloud-sdk-nodejs": "^4.0.0"
-  }
+    "wx-server-sdk": "^2.6.3"
+  },
+  "author": "limbo-envoy"
 }
