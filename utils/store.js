@@ -1528,10 +1528,6 @@ async function getList(key) {
     } catch (e) {
       _lastCloudError = e
       console.error(`[cloud] 读取集合「${collName(key)}」失败：`, e && (e.errMsg || e.message || e))
-      wx.showToast({
-        title: "云端读取失败，检查集合权限",
-        icon: "none"
-      })
       throw e
     }
   }
