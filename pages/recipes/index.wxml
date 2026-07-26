@@ -7,7 +7,7 @@
     <button class="primary-btn" bindtap="addRecipe">新增</button>
   </view>
 
-  <input class="search" placeholder="搜索菜名、分类或食材" value="{{keyword}}" bindinput="onSearch" />
+  <input class="search" placeholder="搜索菜名、分类" value="{{keyword}}" bindinput="onSearch" />
 
   <view class="card" wx:for="{{filteredRecipes}}" wx:key="id" data-id="{{item.id}}" bindtap="editRecipe">
     <view class="row">
@@ -15,7 +15,9 @@
         <view class="name">{{item.name}}</view>
         <view class="meta">
           <text class="tag">{{item.category || '未分类'}}</text>
-          <text>{{item.ingredientsPreview}}</text>
+        </view>
+        <view class="ings" wx:if="{{item.ingredients.length}}">
+          <text class="ing-chip" wx:for="{{item.ingredients}}" wx:for-item="ing" wx:key="name">{{ing.name}}{{ing.qty ? ing.qty + ing.unit : ''}}</text>
         </view>
         <view class="note" wx:if="{{item.note}}">{{item.note}}</view>
       </view>

@@ -10,8 +10,20 @@
   </view>
 
   <view class="field">
-    <view class="label">食材</view>
-    <textarea class="field-area" placeholder="一行一个食材，方便以后搜索" value="{{form.ingredients}}" data-field="ingredients" bindinput="onInput" />
+    <view class="label">食材（每行一份，会用于检查库存和自动扣减）</view>
+    <view class="ing-row head">
+      <text class="ing-name">食材名</text>
+      <text class="ing-qty">用量</text>
+      <text class="ing-unit">单位</text>
+      <text class="ing-del"></text>
+    </view>
+    <view class="ing-row" wx:for="{{ingredients}}" wx:key="index">
+      <input class="ing-name" placeholder="番茄" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="onIngredientInput" />
+      <input class="ing-qty" type="digit" placeholder="2" value="{{item.qty}}" data-index="{{index}}" data-field="qty" bindinput="onIngredientInput" />
+      <input class="ing-unit" placeholder="个" value="{{item.unit}}" data-index="{{index}}" data-field="unit" bindinput="onIngredientInput" />
+      <view class="ing-del" data-index="{{index}}" bindtap="removeIngredient">×</view>
+    </view>
+    <button class="ghost-btn add-ing" bindtap="addIngredient">+ 添加食材</button>
   </view>
 
   <view class="field">

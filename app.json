@@ -1,6 +1,9 @@
 {
   "pages": [
     "pages/menu/index",
+    "pages/inventory/index",
+    "pages/inventory-form/index",
+    "pages/receipt-scan/index",
     "pages/recipes/index",
     "pages/recipe-form/index",
     "pages/history/index"
@@ -18,17 +21,21 @@
     "borderStyle": "white",
     "list": [
       {
-        "pagePath": "pages/menu/index",
-        "text": "今日点菜"
-      },
-      {
-        "pagePath": "pages/recipes/index",
-        "text": "菜谱库"
-      },
-      {
-        "pagePath": "pages/history/index",
-        "text": "记录"
-      }
+      "pagePath": "pages/menu/index",
+      "text": "今日点菜"
+    },
+    {
+      "pagePath": "pages/inventory/index",
+      "text": "食材库存"
+    },
+    {
+      "pagePath": "pages/recipes/index",
+      "text": "菜谱库"
+    },
+    {
+      "pagePath": "pages/history/index",
+      "text": "记录"
+    }
     ]
   },
   "style": "v2",

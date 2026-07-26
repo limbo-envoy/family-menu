@@ -1,0 +1,54 @@
+<view class="page">
+  <view class="topbar">
+    <view>
+      <view class="title">扫小票录入</view>
+      <view class="subtitle">拍一张小票，自动识别商品名批量入库</view>
+    </view>
+  </view>
+
+  <!-- 方式一：拍照识别 -->
+  <view class="card">
+    <view class="block-title">方式一 · 拍照 / 相册</view>
+    <view class="photo-area" bindtap="choosePhoto" wx:if="{{!photoPath}}">
+      <view class="photo-plus">＋</view>
+      <view class="photo-tip">点击拍照或选小票图片</view>
+    </view>
+    <view wx:else class="photo-preview">
+      <image class="photo-img" src="{{photoPath}}" mode="aspectFill" />
+      <view class="photo-repick" bindtap="choosePhoto">重拍 / 换图</view>
+    </view>
+    <view class="hint" wx:if="{{parsing}}">识别中，请稍候…</view>
+    <view class="hint" wx:else>需要配置云开发 + OCR 才能自动识别；没配的话用下面粘贴文字也行。</view>
+  </view>
+
+  <!-- 方式二：粘贴文字 -->
+  <view class="card">
+    <view class="block-title">方式二 · 粘贴小票文字</view>
+    <textarea class="paste-area" placeholder="把小票上的商品行粘贴到这里，点「解析文字」自动提取名称" value="{{pasteText}}" bindinput="onPasteInput" />
+    <button class="primary-btn block" bindtap="parsePasted">解析文字</button>
+  </view>
+
+  <!-- 解析结果：批量确认 -->
+  <view class="card" wx:if="{{candidates.length}}">
+    <view class="block-title">识别到 {{candidates.length}} 项，确认后入库</view>
+    <view class="cand" wx:for="{{candidates}}" wx:key="key" wx:for-index="idx">
+      <view class="cand-check {{item.checked ? 'on' : ''}}" data-index="{{idx}}" bindtap="toggleCheck"></view>
+      <view class="cand-body">
+        <input class="cand-name" value="{{item.name}}" data-index="{{idx}}" data-field="name" bindinput="onCandidateInput" />
+        <view class="cand-row">
+          <input class="cand-qty" type="digit" placeholder="数量" value="{{item.qty}}" data-index="{{idx}}" data-field="qty" bindinput="onCandidateInput" />
+          <input class="cand-unit" placeholder="单位" value="{{item.unit}}" data-index="{{idx}}" data-field="unit" bindinput="onCandidateInput" />
+          <picker class="cand-cat" range="{{categories}}" value="{{item.categoryIndex}}" data-index="{{idx}}" bindchange="onCategoryChange">
+            <view class="cat-picker">{{categories[item.categoryIndex]}}</view>
+          </picker>
+          <view class="cand-del" data-index="{{idx}}" bindtap="removeCandidate">×</view>
+        </view>
+      </view>
+    </view>
+    <button class="primary-btn block save" bindtap="saveSelected">保存选中的项</button>
+  </view>
+
+  <view class="empty" wx:if="{{!candidates.length}}">
+    两种方式任选其一，识别结果会列在下面，确认后一键入库。购入日期自动填今天，保质期可之后在库存里补。
+  </view>
+</view>

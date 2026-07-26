@@ -10,10 +10,22 @@ Page({
   },
 
   refresh() {
-    const orders = store.getOrders().map(order => ({
-      ...order,
-      totalQty: order.items.reduce((sum, item) => sum + item.qty, 0)
-    }))
+    const orders = store.getOrders().map(order => {
+      const isNew = Array.isArray(order.dishes)
+      const dishes = isNew
+        ? order.dishes
+        : (order.items || []).map(it => ({ name: it.name, type: "recipe" }))
+      const consumed = isNew ? order.consumed || [] : []
+      const shortageCount = consumed.filter(c => c.shortage > 0).length
+      const dishCount = dishes.length
+      return {
+        ...order,
+        dishes,
+        consumed,
+        shortageCount,
+        dishCount
+      }
+    })
     this.setData({ orders })
   },
 

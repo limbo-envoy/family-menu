@@ -1,0 +1,43 @@
+<view class="page form-page">
+  <view class="field">
+    <view class="label">食材名称</view>
+    <input class="field-input" placeholder="比如 鸡蛋、生抽、冻虾" value="{{form.name}}" data-field="name" bindinput="onInput" />
+  </view>
+
+  <view class="field">
+    <view class="label">分类</view>
+    <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+      <view class="picker">{{form.category}}</view>
+    </picker>
+  </view>
+
+  <view class="field">
+    <view class="label">购入日期</view>
+    <picker mode="date" value="{{form.purchaseDate}}" end="{{today}}" bindchange="onPurchaseDate">
+      <view class="picker">{{form.purchaseDate || '选择购入日期'}}</view>
+    </picker>
+  </view>
+
+  <view class="field">
+    <view class="label">保质期（到期日）</view>
+    <picker mode="date" value="{{form.expiryDate}}" start="{{today}}" bindchange="onExpiryDate">
+      <view class="picker">{{form.expiryDate || '选择保质期'}}</view>
+    </picker>
+  </view>
+
+  <view class="field-row">
+    <view class="field half">
+      <view class="label">剩余量</view>
+      <input class="field-input" type="digit" placeholder="数量" value="{{form.quantity}}" data-field="quantity" bindinput="onInput" />
+    </view>
+    <view class="field half">
+      <view class="label">单位</view>
+      <input class="field-input" placeholder="个/斤/g/瓶" value="{{form.unit}}" data-field="unit" bindinput="onInput" />
+    </view>
+  </view>
+
+  <view class="actions">
+    <button class="primary-btn save" bindtap="saveItem">保存</button>
+    <button class="danger-btn" wx:if="{{form.id}}" bindtap="confirmRemove">删除</button>
+  </view>
+</view>

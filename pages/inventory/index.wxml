@@ -1,0 +1,72 @@
+<view class="page">
+  <!-- 快捷操作 -->
+  <view class="action-row">
+    <button class="action-btn action-secondary" bindtap="scanReceipt">
+      <text class="action-icon">📷</text>
+      <text>扫小票</text>
+    </button>
+    <button class="action-btn action-primary" bindtap="addItem">
+      <text class="action-icon">＋</text>
+      <text>录入食材</text>
+    </button>
+  </view>
+
+  <!-- 临期 / 过期提醒 -->
+  <view class="reminder-card reminder-expired" wx:if="{{reminder && reminder.expired}}">
+    <text class="reminder-dot reminder-dot-expired"></text>
+    <text class="reminder-text"><text class="reminder-count">{{reminder.expired}}</text> 样食材已过期，建议尽快处理</text>
+  </view>
+  <view class="reminder-card reminder-soon" wx:if="{{reminder && reminder.soon && !reminder.expired}}">
+    <text class="reminder-dot reminder-dot-soon"></text>
+    <text class="reminder-text"><text class="reminder-count">{{reminder.soon}}</text> 样食材临期，优先吃掉它们</text>
+  </view>
+
+  <!-- 筛选与排序 -->
+  <view class="filter-card">
+    <scroll-view class="chips" scroll-x enhanced show-scrollbar="{{false}}">
+      <view
+        class="chip {{activeCategory === item ? 'chip-on' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="*this"
+        data-cat="{{item}}"
+        bindtap="onCategory"
+      >{{item}}</view>
+    </scroll-view>
+
+    <view class="sort-row">
+      <text class="sort-label">排序</text>
+      <view class="seg">
+        <view class="seg-item {{sortMode === 'status' ? 'on' : ''}}" data-mode="status" bindtap="onSort">状态优先</view>
+        <view class="seg-item {{sortMode === 'expiry' ? 'on' : ''}}" data-mode="expiry" bindtap="onSort">保质期最早</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="card item" wx:for="{{filtered}}" wx:key="id" data-id="{{item.id}}" bindtap="editItem">
+    <view class="row">
+      <view class="item-main">
+        <view class="name">{{item.name}}</view>
+        <view class="meta">
+          <text class="tag">{{item.category}}</text>
+          <text class="qty">{{item.quantityText}}</text>
+        </view>
+        <view class="meta sub">
+          <text>购入 {{item.purchaseDate || '未填'}}</text>
+          <text class="dot">·</text>
+          <text>{{item.expiryText}}</text>
+        </view>
+      </view>
+      <view class="status status-{{item.status}}" wx:if="{{item.status !== 'ok'}}">
+        <block wx:if="{{item.status === 'expired'}}">已过期</block>
+        <block wx:elif="{{item.status === 'soon'}}">临期</block>
+        <block wx:else>无期限</block>
+      </view>
+      <view class="arrow">›</view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!filtered.length}}">
+    还没有记录。点上方「录入食材」添加刚买回来的食材，或「扫小票」批量录入。
+  </view>
+</view>

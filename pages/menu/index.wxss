@@ -1,5 +1,135 @@
-.summary {
+/* 模式切换 */
+.segment {
+  display: flex;
+  gap: 0;
+  margin-bottom: 22rpx;
+  background: #ffffff;
+  border: 1rpx solid #ece4d7;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.seg-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  color: #6c6a64;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.seg-on {
+  background: #2f7058;
+  color: #ffffff;
+}
+
+/* 选菜谱卡片 */
+.recipe-card {
+  padding-right: 16rpx;
+}
+
+.recipe-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.round-add {
+  flex: 0 0 auto;
+  padding: 12rpx 26rpx;
+  background: #2f7058;
+  color: #ffffff;
+  font-size: 26rpx;
+  border-radius: 999rpx;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 12rpx;
+  padding: 2rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 21rpx;
+}
+
+.badge-ok {
+  background: #edf6f1;
+  color: #2f7058;
+}
+
+.badge-short {
+  background: #fdf3e2;
+  color: #b9772a;
+}
+
+/* 配食材 */
+.dish-name {
+  width: 100%;
+  height: 82rpx;
+  padding: 0 20rpx;
+  background: #f8f4ec;
+  border-radius: 10rpx;
+}
+
+.ing-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.ing-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  flex: 0 0 auto;
+}
+
+.step-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: #f1eee7;
+  color: #443f38;
+  font-size: 34rpx;
+}
+
+.step-num {
+  min-width: 48rpx;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* 本餐清单 */
+.cart {
+  margin-top: 24rpx;
   border-color: #d7e3dc;
+}
+
+.cart-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f1eadf;
+  color: #443f38;
+}
+
+.dish-type {
+  color: #8a857c;
+  font-size: 22rpx;
+}
+
+.remove {
+  color: #b94732;
+  font-size: 25rpx;
 }
 
 .note-input {
@@ -11,50 +141,115 @@
   background: #f8f4ec;
 }
 
-.cart-line {
+.block {
+  width: 100%;
+}
+
+.cook {
+  margin-top: 6rpx;
+}
+
+/* 确认弹层 */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
-  justify-content: space-between;
-  padding: 8rpx 0;
-  color: #555149;
-  font-size: 25rpx;
+  align-items: flex-end;
+  z-index: 100;
 }
 
-.recipe-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.recipe-card {
-  padding-right: 16rpx;
-}
-
-.counter {
-  display: grid;
-  grid-template-columns: 60rpx 54rpx 60rpx;
-  align-items: center;
-  gap: 8rpx;
-  flex: 0 0 196rpx;
-}
-
-.round-btn {
+.sheet {
+  width: 100%;
+  max-height: 82vh;
+  padding: 30rpx 28rpx calc(30rpx + env(safe-area-inset-bottom));
+  background: #fffaf2;
+  border-radius: 24rpx 24rpx 0 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 60rpx;
-  height: 60rpx;
-  border-radius: 50%;
-  background: #f1eee7;
-  color: #443f38;
+  flex-direction: column;
+}
+
+.sheet-title {
   font-size: 34rpx;
-  line-height: 60rpx;
-}
-
-.round-btn.add {
-  background: #2f7058;
-  color: #ffffff;
-}
-
-.qty {
-  text-align: center;
   font-weight: 700;
+}
+
+.sheet-sub {
+  margin-top: 10rpx;
+  color: #77736a;
+  font-size: 23rpx;
+  line-height: 1.5;
+}
+
+.sheet-list {
+  margin-top: 18rpx;
+  max-height: 46vh;
+}
+
+.conf-line {
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #f1eadf;
+}
+
+.conf-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.conf-head .name {
+  font-size: 29rpx;
+  font-weight: 650;
+}
+
+.conf-avail {
+  color: #77736a;
+  font-size: 22rpx;
+}
+
+.conf-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 12rpx;
+}
+
+.conf-label {
+  color: #555149;
+  font-size: 24rpx;
+}
+
+.conf-input {
+  width: 140rpx;
+  height: 64rpx;
+  padding: 0 16rpx;
+  text-align: center;
+  border-radius: 10rpx;
+  background: #ffffff;
+  border: 1rpx solid #ece4d7;
+}
+
+.conf-unit {
+  color: #77736a;
+  font-size: 23rpx;
+}
+
+.conf-short {
+  margin-left: auto;
+  color: #b9772a;
+  font-size: 23rpx;
+}
+
+.sheet-actions {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 22rpx;
+}
+
+.sheet-actions .primary-btn {
+  flex: 1;
 }

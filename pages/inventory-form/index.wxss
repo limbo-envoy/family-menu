@@ -1,0 +1,59 @@
+.form-page {
+  padding-bottom: 54rpx;
+}
+
+.field {
+  margin-bottom: 22rpx;
+}
+
+.field-row {
+  display: flex;
+  gap: 18rpx;
+}
+
+.field-row .half {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  margin-bottom: 10rpx;
+  color: #555149;
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.field-input {
+  width: 100%;
+  height: 82rpx;
+  padding: 0 20rpx;
+  border-radius: 12rpx;
+  background: #ffffff;
+  border: 1rpx solid #eee5d8;
+}
+
+.picker {
+  height: 82rpx;
+  padding: 0 20rpx;
+  line-height: 82rpx;
+  border-radius: 12rpx;
+  background: #ffffff;
+  border: 1rpx solid #eee5d8;
+  color: #25231f;
+}
+
+.picker:empty::before {
+  content: "请选择";
+  color: #aaa298;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18rpx;
+  margin-top: 34rpx;
+}
+
+.save {
+  width: 100%;
+}

@@ -3,6 +3,23 @@
   min-width: 0;
 }
 
+.ings {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 12rpx;
+}
+
+.ing-chip {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 10rpx 10rpx 0;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: #f1f5f3;
+  color: #4a6a5e;
+  font-size: 22rpx;
+}
+
 .note {
   margin-top: 14rpx;
   color: #555149;

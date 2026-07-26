@@ -2,7 +2,7 @@
   <view class="topbar">
     <view>
       <view class="title">点菜记录</view>
-      <view class="subtitle">以后不知道吃什么，就翻这里</view>
+      <view class="subtitle">每顿饭吃了什么、用了多少食材都在这</view>
     </view>
   </view>
 
@@ -10,20 +10,29 @@
     <view class="row">
       <view>
         <view class="name">{{item.createdAt}}</view>
-        <view class="meta">{{item.items.length}} 道菜，共 {{item.totalQty}} 份</view>
+        <view class="meta">{{item.dishCount}} 道菜，消耗 {{item.consumed.length}} 种食材<text wx:if="{{item.shortageCount}}" class="warn">（{{item.shortageCount}} 种不足）</text></view>
       </view>
       <button class="danger-btn" data-id="{{item.id}}" bindtap="confirmRemove">删除</button>
     </view>
 
-    <view class="dish-line" wx:for="{{item.items}}" wx:for-item="dish" wx:key="id">
+    <view class="dish-line" wx:for="{{item.dishes}}" wx:for-item="dish" wx:key="name">
       <text>{{dish.name}}</text>
-      <text>x {{dish.qty}}</text>
+      <text class="dish-tag">{{dish.type === 'recipe' ? '菜谱' : '自制'}}</text>
+    </view>
+
+    <view class="consume" wx:if="{{item.consumed.length}}">
+      <view class="consume-title">食材消耗</view>
+      <view class="consume-line" wx:for="{{item.consumed}}" wx:for-item="c" wx:key="name">
+        <text class="c-name">{{c.name}}</text>
+        <text class="c-num">用 {{c.consumed}}{{c.unit}} / 需 {{c.required}}{{c.unit}}</text>
+        <text class="c-short" wx:if="{{c.shortage > 0}}">缺 {{c.shortage}}{{c.unit}}</text>
+      </view>
     </view>
 
     <view class="note" wx:if="{{item.note}}">{{item.note}}</view>
   </view>
 
   <view class="empty" wx:if="{{!orders.length}}">
-    暂时没有记录。去“今日点菜”保存一顿饭吧。
+    暂时没有记录。去“今日点菜”做一顿饭吧。
   </view>
 </view>

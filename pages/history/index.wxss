@@ -1,9 +1,59 @@
 .dish-line {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 14rpx 0;
   border-bottom: 1rpx solid #f1eadf;
   color: #443f38;
+}
+
+.dish-tag {
+  margin-left: 14rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+  background: #edf6f1;
+  color: #2f7058;
+  font-size: 20rpx;
+}
+
+.warn {
+  color: #b9772a;
+}
+
+.consume {
+  margin-top: 14rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 10rpx;
+  background: #f8f4ec;
+}
+
+.consume-title {
+  margin-bottom: 8rpx;
+  color: #555149;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.consume-line {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 6rpx 0;
+  font-size: 24rpx;
+}
+
+.c-name {
+  color: #25231f;
+  font-weight: 600;
+}
+
+.c-num {
+  color: #77736a;
+}
+
+.c-short {
+  margin-left: auto;
+  color: #b9772a;
 }
 
 .note {

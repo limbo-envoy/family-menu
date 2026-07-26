@@ -2,46 +2,101 @@
   <view class="topbar">
     <view>
       <view class="title">今天吃什么</view>
-      <view class="subtitle">从菜谱库里点菜，保存成一顿饭的记录</view>
+      <view class="subtitle">选菜谱或自己配食材，自动扣库存、自动记账</view>
     </view>
-    <button class="ghost-btn" bindtap="goRecipes">菜谱</button>
+    <button class="ghost-btn" bindtap="goInventory">库存</button>
   </view>
 
-  <input class="search" placeholder="搜索菜名、分类或食材" value="{{keyword}}" bindinput="onSearch" />
+  <!-- 模式切换 -->
+  <view class="segment">
+    <view class="seg-item {{mode === 'recipe' ? 'seg-on' : ''}}" data-mode="recipe" bindtap="switchMode">选菜谱</view>
+    <view class="seg-item {{mode === 'custom' ? 'seg-on' : ''}}" data-mode="custom" bindtap="switchMode">配食材</view>
+  </view>
 
-  <view class="summary card" wx:if="{{cartItems.length}}">
+  <!-- 选菜谱模式 -->
+  <block wx:if="{{mode === 'recipe'}}">
+    <input class="search" placeholder="搜索菜名、分类" value="{{keyword}}" bindinput="onSearch" />
+    <view class="card recipe-card" wx:for="{{filteredRecipes}}" wx:key="id">
+      <view class="row">
+        <view class="recipe-main">
+          <view class="name">{{item.name}}</view>
+          <view class="meta">
+            <text class="tag">{{item.category || '未分类'}}</text>
+            <text class="badge {{item.enough ? 'badge-ok' : 'badge-short'}}">
+              {{item.enough ? '食材充足' : '缺 ' + item.missingCount + ' 种'}}
+            </text>
+          </view>
+        </view>
+        <button class="round-add" data-id="{{item.id}}" bindtap="addRecipeDish">加入</button>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{!filteredRecipes.length}}">没找到菜。去菜谱库添加一道吧。</view>
+  </block>
+
+  <!-- 配食材模式 -->
+  <block wx:else>
+    <view class="card">
+      <input class="dish-name" placeholder="给这道自制菜起个名（可留空）" value="{{customName}}" bindinput="onCustomName" />
+    </view>
+    <view class="card ing-line" wx:for="{{customIngredients}}" wx:key="id">
+      <view class="ing-info">
+        <view class="name">{{item.name}}</view>
+        <view class="meta">剩 {{item.remaining}} {{item.unit}}</view>
+      </view>
+      <view class="stepper">
+        <view class="step-btn" data-id="{{item.id}}" data-delta="{{-1}}" bindtap="stepCustom">-</view>
+        <text class="step-num">{{item.useQty}}</text>
+        <view class="step-btn" data-id="{{item.id}}" data-delta="{{1}}" bindtap="stepCustom">+</view>
+      </view>
+    </view>
+    <button class="primary-btn block" bindtap="addCustomDish">把这几种食材加入本餐</button>
+    <view class="empty" wx:if="{{!customIngredients.length}}">库存还是空的，先去录入食材。</view>
+  </block>
+
+  <!-- 本餐清单 -->
+  <view class="cart card" wx:if="{{planned.length}}">
     <view class="row">
       <view>
-        <view class="name">已选 {{totalDishes}} 道菜</view>
-        <view class="meta">共 {{totalQty}} 份，可保存为本餐记录</view>
+        <view class="name">本餐 {{planned.length}} 道菜</view>
+        <view class="meta">确认后扣减库存并记录</view>
       </view>
-      <button class="primary-btn" bindtap="saveOrder">保存</button>
     </view>
-    <textarea class="note-input" placeholder="这顿饭的备注，比如谁来吃、口味要求" value="{{note}}" bindinput="onNoteInput" />
-    <view class="cart-line" wx:for="{{cartItems}}" wx:key="id">
-      <text>{{item.name}}</text>
-      <text>x {{item.qty}}</text>
+    <view class="cart-line" wx:for="{{planned}}" wx:key="key">
+      <text>{{item.name}}<text class="dish-type">{{item.type === 'recipe' ? '（菜谱）' : '（自制）'}}</text></text>
+      <text class="remove" data-key="{{item.key}}" bindtap="removeDish">移除</text>
     </view>
+    <input class="note-input" placeholder="备注，比如谁来吃、口味要求" value="{{note}}" bindinput="onNote" />
+    <button class="primary-btn block cook" bindtap="openConfirm">确认开做</button>
   </view>
 
-  <view class="card recipe-card" wx:for="{{filteredRecipes}}" wx:key="id">
-    <view class="row">
-      <view class="recipe-main">
-        <view class="name">{{item.name}}</view>
-        <view class="meta">
-          <text class="tag">{{item.category || '未分类'}}</text>
-          <text>{{item.ingredientsPreview}}</text>
+  <!-- 确认开做弹层 -->
+  <view class="mask" wx:if="{{confirm.open}}" bindtap="closeConfirm">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-title">确认食材用量</view>
+      <view class="sheet-sub" wx:if="{{confirm.hasShortage}}">
+        有 {{confirm.totalShort}} 种食材不足，缺的部分可手动调整本次用量，或直接确认（缺口会记到账上待采购）。
+      </view>
+      <view class="sheet-sub" wx:else>食材都够，确认后自动扣减并记账。</view>
+
+      <scroll-view class="sheet-list" scroll-y>
+        <view class="conf-line" wx:for="{{confirm.lines}}" wx:key="name" wx:for-index="idx">
+          <view class="conf-head">
+            <text class="name">{{item.name}}</text>
+            <text class="conf-avail">库存 {{item.available}}{{item.unit}} / 需 {{item.required}}{{item.unit}}</text>
+          </view>
+          <view class="conf-row">
+            <text class="conf-label">本次用量</text>
+            <input class="conf-input" type="digit" value="{{item.consume}}" data-index="{{idx}}" bindinput="onConsumeInput" />
+            <text class="conf-unit">{{item.unit}}</text>
+            <text class="conf-short" wx:if="{{item.shortage > 0}}">缺口 {{item.shortage}}{{item.unit}}</text>
+          </view>
         </view>
-      </view>
-      <view class="counter">
-        <view class="round-btn" data-id="{{item.id}}" bindtap="minus">-</view>
-        <text class="qty">{{item.qty || 0}}</text>
-        <view class="round-btn add" data-id="{{item.id}}" bindtap="plus">+</view>
+      </scroll-view>
+
+      <view class="sheet-actions">
+        <button class="ghost-btn" bindtap="closeConfirm">再看看</button>
+        <button class="primary-btn" bindtap="confirmCook">确认扣减并记账</button>
       </view>
     </view>
-  </view>
-
-  <view class="empty" wx:if="{{!filteredRecipes.length}}">
-    没找到菜。去菜谱库添加一道吧。
   </view>
 </view>

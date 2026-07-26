@@ -34,6 +34,43 @@
   min-height: 230rpx;
 }
 
+/* 结构化食材行 */
+.ing-row {
+  display: grid;
+  grid-template-columns: 1fr 90rpx 90rpx 56rpx;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.ing-row.head {
+  color: #8a857c;
+  font-size: 22rpx;
+  margin-bottom: 8rpx;
+}
+
+.ing-name,
+.ing-qty,
+.ing-unit {
+  height: 76rpx;
+  padding: 0 14rpx;
+  border-radius: 10rpx;
+  background: #ffffff;
+  border: 1rpx solid #eee5d8;
+  min-width: 0;
+}
+
+.ing-del {
+  text-align: center;
+  color: #b94732;
+  font-size: 40rpx;
+  line-height: 76rpx;
+}
+
+.add-ing {
+  margin-top: 6rpx;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr;
