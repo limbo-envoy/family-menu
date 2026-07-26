@@ -1195,6 +1195,173 @@ const seedRecipes = [
       { name: "醋", qty: 1, unit: "份" }
     ],
     steps: "1. 螃蟹上锅蒸 12 分钟\n2. 姜末加醋蘸食"
+  },
+
+  /* ---------- 减脂餐 ---------- */
+  {
+    id: "seed-diet-cucumber",
+    name: "凉拌黄瓜",
+    category: "减脂餐",
+    ingredients: [
+      { name: "黄瓜", qty: 2, unit: "根" },
+      { name: "蒜", qty: 2, unit: "份" },
+      { name: "醋", qty: 1, unit: "份" },
+      { name: "盐", qty: 1, unit: "份" }
+    ],
+    steps: "1. 黄瓜拍碎切段\n2. 加蒜末、醋、盐拌匀即可，少油清爽"
+  },
+  {
+    id: "seed-diet-broccoli",
+    name: "白灼西兰花",
+    category: "减脂餐",
+    ingredients: [
+      { name: "西兰花", qty: 1, unit: "棵" },
+      { name: "蒜", qty: 1, unit: "份" },
+      { name: "盐", qty: 1, unit: "份" }
+    ],
+    steps: "1. 西兰花焯水 1 分钟捞出\n2. 淋少许蒜蓉生抽即可"
+  },
+  {
+    id: "seed-diet-bass",
+    name: "清蒸鲈鱼",
+    category: "减脂餐",
+    ingredients: [
+      { name: "鲈鱼", qty: 1, unit: "条" },
+      { name: "姜", qty: 2, unit: "份" },
+      { name: "葱", qty: 1, unit: "份" },
+      { name: "醋", qty: 1, unit: "份" }
+    ],
+    steps: "1. 鲈鱼蒸 8-10 分钟\n2. 铺姜丝葱丝，淋少许醋提鲜"
+  },
+  {
+    id: "seed-diet-chicken-salad",
+    name: "鸡胸蔬菜沙拉",
+    category: "减脂餐",
+    ingredients: [
+      { name: "鸡胸肉", qty: 200, unit: "g" },
+      { name: "生菜", qty: 200, unit: "g" },
+      { name: "番茄", qty: 1, unit: "个" },
+      { name: "黄瓜", qty: 1, unit: "根" },
+      { name: "洋葱", qty: 1, unit: "个" }
+    ],
+    steps: "1. 鸡胸肉水煮撕条\n2. 蔬菜切好拌一起\n3. 少油醋汁拌匀"
+  },
+  {
+    id: "seed-diet-egg-custard",
+    name: "蒸蛋羹",
+    category: "减脂餐",
+    ingredients: [
+      { name: "鸡蛋", qty: 2, unit: "个" },
+      { name: "葱", qty: 1, unit: "份" }
+    ],
+    steps: "1. 鸡蛋打散加 1.5 倍温水\n2. 上锅蒸 8 分钟，撒葱花"
+  },
+  {
+    id: "seed-diet-fungus",
+    name: "凉拌木耳",
+    category: "减脂餐",
+    ingredients: [
+      { name: "木耳", qty: 50, unit: "g" },
+      { name: "蒜", qty: 2, unit: "份" },
+      { name: "醋", qty: 1, unit: "份" },
+      { name: "香菜", qty: 1, unit: "份" }
+    ],
+    steps: "1. 木耳泡发焯熟过凉\n2. 加蒜末、醋、香菜拌匀"
+  },
+  {
+    id: "seed-diet-lettuce",
+    name: "蒜蓉生菜",
+    category: "减脂餐",
+    ingredients: [
+      { name: "生菜", qty: 300, unit: "g" },
+      { name: "蒜", qty: 2, unit: "份" },
+      { name: "盐", qty: 1, unit: "份" }
+    ],
+    steps: "1. 生菜焯水 10 秒捞出\n2. 爆香蒜蓉淋上，少盐"
+  },
+  {
+    id: "seed-diet-wintermelon-shrimp",
+    name: "冬瓜虾仁汤",
+    category: "减脂餐",
+    ingredients: [
+      { name: "冬瓜", qty: 1, unit: "个" },
+      { name: "虾", qty: 200, unit: "g" },
+      { name: "葱", qty: 1, unit: "份" }
+    ],
+    steps: "1. 冬瓜切片煮软\n2. 下虾仁煮变色，撒葱花"
+  },
+  {
+    id: "seed-diet-purple-potato",
+    name: "蒸紫薯",
+    category: "减脂餐",
+    ingredients: [
+      { name: "紫薯", qty: 2, unit: "个" }
+    ],
+    steps: "1. 紫薯洗净\n2. 上锅蒸 20 分钟，替代主食饱腹"
+  },
+  {
+    id: "seed-diet-tomato-tofu",
+    name: "番茄豆腐汤",
+    category: "减脂餐",
+    ingredients: [
+      { name: "番茄", qty: 2, unit: "个" },
+      { name: "豆腐", qty: 1, unit: "块" },
+      { name: "葱", qty: 1, unit: "份" }
+    ],
+    steps: "1. 番茄炒出汁\n2. 加水放豆腐煮开，撒葱花"
+  },
+  {
+    id: "seed-diet-spinach",
+    name: "凉拌菠菜",
+    category: "减脂餐",
+    ingredients: [
+      { name: "菠菜", qty: 300, unit: "g" },
+      { name: "蒜", qty: 2, unit: "份" },
+      { name: "醋", qty: 1, unit: "份" },
+      { name: "盐", qty: 1, unit: "份" }
+    ],
+    steps: "1. 菠菜焯水挤干切段\n2. 加蒜末、醋、盐拌匀"
+  },
+  {
+    id: "seed-diet-pumpkin",
+    name: "清蒸南瓜",
+    category: "减脂餐",
+    ingredients: [
+      { name: "南瓜", qty: 1, unit: "个" }
+    ],
+    steps: "1. 南瓜切块\n2. 上锅蒸 15 分钟，天然清甜"
+  },
+  {
+    id: "seed-diet-shrimp",
+    name: "白灼虾",
+    category: "减脂餐",
+    ingredients: [
+      { name: "虾", qty: 300, unit: "g" },
+      { name: "姜", qty: 2, unit: "份" },
+      { name: "醋", qty: 1, unit: "份" }
+    ],
+    steps: "1. 水开下虾煮 2 分钟\n2. 姜末加醋蘸食"
+  },
+  {
+    id: "seed-diet-celery-tofu",
+    name: "芹菜炒香干",
+    category: "减脂餐",
+    ingredients: [
+      { name: "芹菜", qty: 200, unit: "g" },
+      { name: "香干", qty: 100, unit: "g" },
+      { name: "蒜", qty: 1, unit: "份" }
+    ],
+    steps: "1. 芹菜、香干切段\n2. 少油快炒，加盐出锅"
+  },
+  {
+    id: "seed-diet-oatmeal",
+    name: "燕麦牛奶粥",
+    category: "减脂餐",
+    ingredients: [
+      { name: "燕麦", qty: 1, unit: "袋" },
+      { name: "牛奶", qty: 1, unit: "盒" }
+    ],
+    steps: "1. 燕麦加牛奶\n2. 微波炉或小火煮 2 分钟"
   }
 ]
 
@@ -1747,6 +1914,14 @@ async function removeOrder(id) {
   await setList(KEYS.orders, orders.filter(item => item.id !== id))
 }
 
+// 分类顺序：全部之后固定插入「减脂餐」，其余按数据出现顺序排列
+function orderedCategories(recipes) {
+  const cats = Array.from(new Set(recipes.map(r => r.category || "未分类")))
+  const pinned = ["减脂餐"]
+  const rest = cats.filter(c => !pinned.includes(c))
+  return ["全部", ...pinned.filter(c => cats.includes(c)), ...rest]
+}
+
 module.exports = {
   CATEGORIES,
   normalizeName,
@@ -1776,5 +1951,6 @@ module.exports = {
   saveOrder,
   removeOrder,
   getLastCloudError,
-  diagnoseCloud
+  diagnoseCloud,
+  orderedCategories
 }

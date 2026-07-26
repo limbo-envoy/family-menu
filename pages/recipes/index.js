@@ -15,7 +15,7 @@ Page({
 
   async refresh() {
     const recipes = await store.getRecipes()
-    const categories = ["全部", ...Array.from(new Set(recipes.map(r => r.category || "未分类")))]
+    const categories = store.orderedCategories(recipes)
     this.setData({ recipes, categories }, () => this.applyFilter())
     if (!recipes.length) {
       this.showDiagnosis("菜谱库为空")
