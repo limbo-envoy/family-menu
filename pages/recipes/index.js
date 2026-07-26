@@ -14,11 +14,16 @@ Page({
   },
 
   async refresh() {
-    const recipes = await store.getRecipes()
-    const categories = store.orderedCategories(recipes)
-    this.setData({ recipes, categories }, () => this.applyFilter())
-    if (!recipes.length) {
-      this.showDiagnosis("菜谱库为空")
+    try {
+      const recipes = await store.getRecipes()
+      const categories = store.orderedCategories(recipes)
+      this.setData({ recipes, categories }, () => this.applyFilter())
+      if (!recipes.length) {
+        this.showDiagnosis("菜谱库为空")
+      }
+    } catch (e) {
+      console.error("[recipes] 加载失败：", e)
+      this.showDiagnosis("菜谱加载失败")
     }
   },
 
