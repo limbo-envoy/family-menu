@@ -1328,6 +1328,7 @@ function runOnce(key, fn) {
 function initCloud(env) {
   if (wx.cloud && env) {
     _db = wx.cloud.database({ env })
+    _cloudEnvId = env
   }
 }
 
@@ -1373,6 +1374,37 @@ async function getList(key) {
 let _lastCloudError = null
 function getLastCloudError() {
   return _lastCloudError
+}
+
+let _cloudEnvId = null
+
+// 云端自诊断：逐项检查基础库/环境/集合，返回一段人话结论
+async function diagnoseCloud() {
+  const lines = []
+  if (!wx.cloud) {
+    return "基础库不支持云开发（wx.cloud 不存在），请升级调试基础库版本"
+  }
+  if (!_db) {
+    return "云数据库未初始化：app.js 里 CLOUD_ENV 为空或 initCloud 未执行"
+  }
+  lines.push(`环境 ID：${_cloudEnvId || "(未知)"}`)
+  const cols = ["recipes", "inventory", "orders"]
+  for (const name of cols) {
+    try {
+      const res = await _db.collection(name).count()
+      lines.push(`集合 ${name}：可访问，共 ${res.total} 条`)
+    } catch (e) {
+      const msg = (e && (e.errMsg || e.message)) || String(e)
+      if (/collection.*not.*exist|-502005/i.test(msg)) {
+        lines.push(`集合 ${name}：不存在！请在该环境下创建`)
+      } else if (/permission|-502003|access denied/i.test(msg)) {
+        lines.push(`集合 ${name}：无权限！请把安全规则设为 read:true write:true`)
+      } else {
+        lines.push(`集合 ${name}：读取失败 ${msg}`)
+      }
+    }
+  }
+  return lines.join("\n")
 }
 
 // 覆盖写全部：云端做增量 diff（新增/更新/删除），避免全量删写，否则本地存储
@@ -1731,5 +1763,6 @@ module.exports = {
   getOrders,
   saveOrder,
   removeOrder,
-  getLastCloudError
+  getLastCloudError,
+  diagnoseCloud
 }
