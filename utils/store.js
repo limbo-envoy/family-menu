@@ -1645,7 +1645,11 @@ async function ensureSeedRecipes() {
 async function getRecipes() {
   await ensureSeedRecipes()
   try {
-    return await getList(KEYS.recipes)
+    const list = await getList(KEYS.recipes)
+    if (list && list.length) return list
+    // 云端读取成功但为空（权限/集合被清等），降级到本地种子，避免页面空白
+    console.warn("[getRecipes] 云端返回空，降级到本地种子")
+    return seedRecipes
   } catch (e) {
     console.error("[getRecipes] 云端读取失败，降级到本地种子：", e)
     _lastCloudError = e
@@ -1722,17 +1726,31 @@ function setCart(cart) {
 
 async function ensureSeedInventory() {
   return runOnce("ensureSeedInventory", async () => {
-    const inventory = await getList(KEYS.inventory)
-    if (!inventory.length) {
-      const local = wx.getStorageSync(KEYS.inventory) || []
-      await setList(KEYS.inventory, local.length ? local : seedInventory)
+    try {
+      const inventory = await getList(KEYS.inventory)
+      if (!inventory.length) {
+        const local = wx.getStorageSync(KEYS.inventory) || []
+        await setList(KEYS.inventory, local.length ? local : seedInventory)
+      }
+    } catch (e) {
+      console.error("[ensureSeedInventory] 云端种子同步失败：", e)
+      _lastCloudError = e
     }
   })
 }
 
 async function getInventory() {
   await ensureSeedInventory()
-  return await getList(KEYS.inventory)
+  try {
+    const list = await getList(KEYS.inventory)
+    if (list && list.length) return list
+    console.warn("[getInventory] 云端返回空，降级到本地种子")
+    return seedInventory
+  } catch (e) {
+    console.error("[getInventory] 云端读取失败，降级到本地种子：", e)
+    _lastCloudError = e
+    return seedInventory
+  }
 }
 
 async function saveInventoryItem(item) {
