@@ -1840,29 +1840,53 @@ async function checkRecipe(recipe) {
 // 根据当前库存推荐菜谱：先按「食材齐备数」降序，再按齐备比例降序
 // 返回 [{id, name, category, total, available, enough, ingredients}]
 async function recommendRecipes(limit) {
-  const recipes = await getRecipes()
-  const scored = await Promise.all(recipes.map(async recipe => {
-    const lines = await checkAvailability(normalizeIngredients(recipe))
-    const total = lines.length
-    const available = lines.filter(l => l.sufficient).length
-    return { recipe, total, available, ratio: total ? available / total : 0 }
-  }))
-  scored.sort((a, b) => {
-    if (b.available !== a.available) return b.available - a.available
-    return b.ratio - a.ratio
-  })
-  return scored
-    .filter(s => s.available > 0)
-    .slice(0, limit || 6)
-    .map(s => ({
-      id: s.recipe.id,
-      name: s.recipe.name,
-      category: s.recipe.category || "未分类",
-      total: s.total,
-      available: s.available,
-      enough: s.available === s.total,
-      ingredients: s.recipe.ingredients
-    }))
+  try {
+    const recipes = await getRecipes()
+    const inventory = await getInventory()
+    const inventoryMap = new Map()
+    inventory.forEach(item => {
+      const name = normalizeName(item.name)
+      inventoryMap.set(name, (inventoryMap.get(name) || 0) + (Number(item.quantity) || 0))
+    })
+
+    const scored = recipes.map(recipe => {
+      const lines = normalizeIngredients(recipe).map(req => {
+        const available = inventoryMap.get(normalizeName(req.name)) || 0
+        const required = Number(req.qty) || 0
+        return {
+          name: req.name,
+          unit: req.unit || "",
+          required,
+          available,
+          sufficient: available >= required
+        }
+      })
+      const total = lines.length
+      const available = lines.filter(l => l.sufficient).length
+      return { recipe, total, available, ratio: total ? available / total : 0, lines }
+    })
+
+    scored.sort((a, b) => {
+      if (b.available !== a.available) return b.available - a.available
+      return b.ratio - a.ratio
+    })
+
+    return scored
+      .filter(s => s.available > 0)
+      .slice(0, limit || 6)
+      .map(s => ({
+        id: s.recipe.id,
+        name: s.recipe.name,
+        category: s.recipe.category || "未分类",
+        total: s.total,
+        available: s.available,
+        enough: s.available === s.total,
+        ingredients: s.lines
+      }))
+  } catch (e) {
+    console.error("[recommendRecipes] 推荐计算失败：", e)
+    return []
+  }
 }
 
 // 扣减库存：requirements=[{name, qty, unit}]，按购入日期早的优先消耗（FIFO）

@@ -35,9 +35,15 @@ Page({
   async refresh() {
     try {
       const recipes = await store.getRecipes()
-      const inventory = await store.getInventory()
-      const recommended = await store.recommendRecipes(6)
       const categories = store.orderedCategories(recipes)
+      let inventory = []
+      let recommended = []
+      try {
+        inventory = await store.getInventory()
+        recommended = await store.recommendRecipes(6)
+      } catch (e) {
+        console.error("[menu] 库存/推荐加载失败：", e)
+      }
       this.setData({ recipes, inventory, recommended, categories }, async () => {
         await this.applyRecipeFilter()
         this.buildCustomView()
