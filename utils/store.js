@@ -1524,7 +1524,8 @@ async function getList(key) {
     try {
       const col = _db.collection(collName(key))
       const all = await cloudGetAll(col)
-      return all
+      // 统一 ID：云端文档的真实主键是 _id，把它同步到 id，避免上层按 id 过滤/删除时匹配不上
+      return all.map(doc => ({ ...doc, id: doc.id || doc._id }))
     } catch (e) {
       _lastCloudError = e
       console.error(`[cloud] 读取集合「${collName(key)}」失败：`, e && (e.errMsg || e.message || e))
@@ -1782,7 +1783,10 @@ async function saveInventoryItem(item) {
 
 async function removeInventoryItem(id) {
   const inventory = await getInventory()
-  await setList(KEYS.inventory, inventory.filter(it => it.id !== id))
+  await setList(KEYS.inventory, inventory.filter(it => {
+    const docId = String(it.id || it._id)
+    return docId !== String(id)
+  }))
 }
 
 // 批量删除库存项
@@ -1790,7 +1794,10 @@ async function removeInventoryItems(ids) {
   const idSet = new Set((ids || []).map(id => String(id)))
   if (!idSet.size) return
   const inventory = await getInventory()
-  await setList(KEYS.inventory, inventory.filter(it => !idSet.has(String(it.id))))
+  await setList(KEYS.inventory, inventory.filter(it => {
+    const docId = String(it.id || it._id)
+    return !idSet.has(docId)
+  }))
 }
 
 async function getInventoryItem(id) {
